@@ -70,3 +70,4 @@ export const LoginForm = () => {
       </p>
     </form>
   );
+};
