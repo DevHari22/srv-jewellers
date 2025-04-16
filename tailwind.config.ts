@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,24 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Custom jewelry colors
+				gold: {
+					light: '#FEF3C7',
+					DEFAULT: '#D4AF37',
+					dark: '#A67C00',
+				},
+				maroon: {
+					light: '#F9A8D4',
+					DEFAULT: '#8B0000',
+					dark: '#560000',
+				},
+				jewel: {
+					red: '#E11D48',
+					green: '#059669',
+					blue: '#0369A1',
+					purple: '#7E22CE',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,12 +102,31 @@ export default {
 					to: {
 						height: '0'
 					}
-				}
+				},
+				'shimmer': {
+					'0%': { backgroundPosition: '-200% 0' },
+					'100%': { backgroundPosition: '200% 0' },
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-5px)' },
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'shimmer': 'shimmer 2s linear infinite',
+				'float': 'float 3s ease-in-out infinite',
+			},
+			backgroundImage: {
+				'gold-gradient': 'linear-gradient(to right, #D4AF37, #FEF3C7, #D4AF37)',
+				'maroon-gold': 'linear-gradient(135deg, #8B0000 0%, #D4AF37 100%)',
+				'pattern': "url('/patterns/indian-pattern.svg')",
+			},
+			fontFamily: {
+				sans: ['Inter', 'sans-serif'],
+				serif: ['Playfair Display', 'serif'],
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
