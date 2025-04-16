@@ -46,7 +46,7 @@ const Navbar = () => {
         <div className="container flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="font-serif text-2xl md:text-3xl font-bold text-gold-gradient">
-            Indian Gem Emporium
+            SRV JEWELLERS
           </Link>
 
           {/* Desktop Navigation */}
