@@ -8,7 +8,7 @@ import {
   Facebook, 
   Instagram, 
   Twitter, 
-  YouTube
+  Youtube  // Changed from YouTube to Youtube
 } from "lucide-react";
 
 const Footer = () => {
