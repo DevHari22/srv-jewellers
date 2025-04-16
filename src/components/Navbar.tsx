@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { 
@@ -45,7 +44,7 @@ const Navbar = () => {
       <nav className="bg-white shadow-md py-4">
         <div className="container flex justify-between items-center">
           {/* Logo */}
-          <Link to="/" className="font-serif text-2xl md:text-3xl font-bold text-gold-gradient">
+          <Link to="/" className="font-serif text-2xl md:text-3xl font-bold bg-gradient-to-r from-maroon via-gold to-maroon bg-clip-text text-transparent">
             SRV JEWELLERS
           </Link>
 

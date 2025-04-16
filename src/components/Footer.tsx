@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { 
@@ -111,8 +110,8 @@ const Footer = () => {
               <li className="flex items-start">
                 <MapPin size={20} className="mr-2 text-gold-light shrink-0 mt-1" />
                 <span className="text-gray-200">
-                  128, Jewelry Market, Chandni Chowk,<br />
-                  Delhi, India - 110006
+                  229 A, Bazzar Street,<br />
+                  Namakkal, Tamil Nadu - 637001
                 </span>
               </li>
               <li className="flex items-center">

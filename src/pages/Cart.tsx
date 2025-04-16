@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -58,25 +57,7 @@ const CartItem = ({ item, updateQuantity, removeItem }: any) => {
 };
 
 const Cart = () => {
-  // Sample cart data
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "22K Gold Traditional Necklace",
-      price: 72999,
-      quantity: 1,
-      weight: "25.4g",
-      image: "https://images.unsplash.com/photo-1608042314453-ae338d80c427?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      id: 2,
-      name: "Diamond Stud Earrings",
-      price: 25999,
-      quantity: 1,
-      weight: "4.2g",
-      image: "https://images.unsplash.com/photo-1588444650733-d636f6927858?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    },
-  ]);
+  const [cartItems, setCartItems] = useState([]);
   
   const updateQuantity = (id: number, newQuantity: number) => {
     if (newQuantity < 1) return;
@@ -92,7 +73,6 @@ const Cart = () => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== id));
   };
   
-  // Calculate cart totals
   const subtotal = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0
@@ -106,7 +86,6 @@ const Cart = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow">
-        {/* Breadcrumb */}
         <div className="bg-gray-50 py-3">
           <div className="container">
             <div className="flex items-center text-sm text-gray-500">
@@ -123,7 +102,6 @@ const Cart = () => {
           {cartItems.length > 0 ? (
             <div className="lg:grid lg:grid-cols-12 lg:gap-12">
               <div className="lg:col-span-8">
-                {/* Cart items */}
                 <div className="border rounded-lg overflow-hidden bg-white">
                   <div className="px-6">
                     {cartItems.map(item => (
@@ -146,7 +124,6 @@ const Cart = () => {
               </div>
 
               <div className="lg:col-span-4 mt-8 lg:mt-0">
-                {/* Order Summary */}
                 <div className="border rounded-lg overflow-hidden bg-white">
                   <div className="px-6 py-4 bg-gray-50 border-b">
                     <h2 className="text-lg font-medium text-gray-900">Order Summary</h2>
@@ -185,7 +162,7 @@ const Cart = () => {
               </div>
               <h2 className="text-2xl font-medium text-gray-900 mb-2">Your cart is empty</h2>
               <p className="text-gray-600 mb-6">
-                Looks like you haven't added any items to your cart yet.
+                Add items to your cart to see them here.
               </p>
               <Link to="/categories">
                 <Button className="bg-maroon hover:bg-maroon-dark text-white">
