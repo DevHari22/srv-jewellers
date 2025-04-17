@@ -40,13 +40,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (error) {
         console.error("Error fetching user role:", error);
-        return null;
+        return 'customer'; // Default role if fetch fails
       }
       
-      return data?.role || 'customer'; // Default to customer if role not found
+      return data?.role || 'customer';
     } catch (error) {
       console.error("Error in fetchUserRole:", error);
-      return null;
+      return 'customer';
     }
   };
 
@@ -75,6 +75,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(null);
       setSession(null);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -88,7 +89,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Check for existing session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       await updateUserState(session);
-      setLoading(false);
     });
 
     return () => {
