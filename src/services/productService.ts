@@ -14,6 +14,8 @@ export type Product = {
   featured?: boolean;
   weight?: string; // Additional metadata for jewelry
   purity?: string; // Additional metadata for jewelry
+  created_at?: string; // Adding created_at property
+  updated_at?: string; // Adding updated_at property
 };
 
 export type ProductInput = Omit<Product, 'id'>;

@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import ProductCard from "./ProductCard";
 import { useToast } from "@/hooks/use-toast";
 import { useProducts } from "@/hooks/useProducts";
@@ -59,7 +59,7 @@ const FeaturedProducts = () => {
               <ProductCard
                 key={product.id}
                 product={{
-                  id: product.id,
+                  id: Number(product.id), // Convert string id to number
                   name: product.name,
                   price: product.price,
                   image: product.image_url,

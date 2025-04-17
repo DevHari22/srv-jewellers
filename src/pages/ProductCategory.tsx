@@ -38,7 +38,10 @@ const ProductCategory = () => {
       case "price-high-low":
         return b.price - a.price;
       case "newest":
-        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+        // Use timestamps or default to 0 if created_at doesn't exist
+        const aCreatedAt = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const bCreatedAt = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return bCreatedAt - aCreatedAt;
       default: // featured
         return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
     }

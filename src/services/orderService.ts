@@ -34,13 +34,22 @@ export type OrderInput = {
 // Function to create a new order
 export const createOrder = async (orderData: OrderInput): Promise<Order | null> => {
   try {
-    // First, create the order
+    // Get the current user
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error('You need to be logged in to place an order');
+      return null;
+    }
+    
+    // First, create the order with user_id
     const { data: order, error: orderError } = await supabase
       .from('orders')
-      .insert([{
+      .insert({
         shipping_address: orderData.shipping_address,
         total_amount: orderData.total_amount,
-      }])
+        user_id: user.id
+      })
       .select()
       .single();
     
