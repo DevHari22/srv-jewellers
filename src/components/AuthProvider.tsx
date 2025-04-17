@@ -4,6 +4,7 @@ import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { toast as sonnerToast } from "sonner";
 
 export type AuthUser = {
   id: string;
@@ -16,7 +17,7 @@ export type AuthContextType = {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, name?: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -34,43 +35,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('role')
+        .select('role, name')
         .eq('id', userId)
         .single();
       
       if (error) {
         console.error("Error fetching user role:", error);
-        return 'customer'; // Default role if fetch fails
+        return { role: 'customer', name: null }; // Default role if fetch fails
       }
       
-      return data?.role || 'customer';
+      return { role: data?.role || 'customer', name: data?.name || null };
     } catch (error) {
       console.error("Error in fetchUserRole:", error);
-      return 'customer';
+      return { role: 'customer', name: null };
     }
   };
 
   const updateUserState = async (session: Session | null) => {
     if (session) {
-      let role = null;
-      
-      // Attempt to get role from user metadata first (useful for social logins)
-      const metadataRole = session.user.user_metadata?.role;
-      
-      if (!metadataRole) {
-        // If not in metadata, try to get from profiles table
-        role = await fetchUserRole(session.user.id);
-      } else {
-        role = metadataRole;
-      }
+      const { role, name } = await fetchUserRole(session.user.id);
       
       setUser({
         id: session.user.id,
         email: session.user.email,
-        role: role || 'customer' // Default to customer if no role found
+        role: role
       });
       
       setSession(session);
+      
+      // If user has no name yet but provided one during signup, update the profile
+      if (!name && session.user.user_metadata?.name) {
+        await supabase
+          .from('profiles')
+          .update({ name: session.user.user_metadata.name })
+          .eq('id', session.user.id);
+      }
     } else {
       setUser(null);
       setSession(null);
@@ -83,6 +82,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         await updateUserState(session);
+        
+        if (event === 'SIGNED_IN') {
+          sonnerToast.success('Signed in successfully!');
+        } else if (event === 'SIGNED_OUT') {
+          sonnerToast.success('Signed out successfully!');
+        }
       }
     );
 
@@ -105,64 +110,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) throw error;
 
-      // Redirect based on role
-      const { data } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', (await supabase.auth.getUser()).data.user?.id)
-        .single();
+      // Redirect based on role will happen in the useEffect
 
-      if (data?.role === 'admin') {
-        navigate("/admin");
-      } else {
-        navigate("/");
-      }
-
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in.",
-      });
     } catch (error: any) {
       toast({
         title: "Error signing in",
         description: error.message,
         variant: "destructive",
       });
+      throw error;
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, name?: string) => {
     try {
       // Create the user in Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            name: name
+          },
+          emailRedirectTo: window.location.origin + '/login'
+        }
       });
 
       if (authError) throw authError;
 
-      // If auth was successful, create a profile entry with default role
-      if (authData.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([
-            { 
-              id: authData.user.id, 
-              email: email,
-              role: 'customer' // Default role for new users
-            }
-          ]);
-
-        if (profileError) {
-          console.error("Error creating profile:", profileError);
-          // Continue anyway, as the auth user was created
-        }
-      }
-
       toast({
-        title: "Welcome!",
+        title: "Success!",
         description: "Please check your email to verify your account.",
       });
+      
       navigate("/login");
     } catch (error: any) {
       toast({
@@ -170,6 +150,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: error.message,
         variant: "destructive",
       });
+      throw error;
     }
   };
 
@@ -179,10 +160,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) throw error;
       
       navigate("/login");
-      toast({
-        title: "Signed out",
-        description: "You have been successfully signed out.",
-      });
     } catch (error: any) {
       toast({
         title: "Error signing out",
