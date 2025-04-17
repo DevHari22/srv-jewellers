@@ -1,24 +1,29 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/Layout";
-import { Plus, Edit, Trash2, Search, Filter } from "lucide-react";
+import { Plus, Edit, Trash2, Search, Filter, Loader2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { fetchProducts, deleteProduct, Product } from "@/services/productService";
+import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 const AdminProducts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("all");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
   
-  // Sample products data
-  const products = [
-    { id: 1, name: "22K Gold Necklace", category: "Necklaces", price: 45000, stock: 12, featured: true },
-    { id: 2, name: "Diamond Earrings", category: "Earrings", price: 28500, stock: 8, featured: false },
-    { id: 3, name: "Ruby Pendant", category: "Pendants", price: 16800, stock: 5, featured: true },
-    { id: 4, name: "Pearl Bracelet", category: "Bracelets", price: 12400, stock: 15, featured: false },
-    { id: 5, name: "Gold Ring with Diamond", category: "Rings", price: 33700, stock: 7, featured: true },
-    { id: 6, name: "Silver Anklet", category: "Anklets", price: 5800, stock: 20, featured: false },
-    { id: 7, name: "Gold Bangles Set", category: "Bangles", price: 52000, stock: 4, featured: true },
-    { id: 8, name: "Diamond Nose Pin", category: "Nose Pins", price: 8900, stock: 10, featured: false },
-  ];
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      const fetchedProducts = await fetchProducts();
+      setProducts(fetchedProducts);
+      setLoading(false);
+    };
+    
+    loadProducts();
+  }, []);
   
   // Filter products based on search query and selected filter
   const filteredProducts = products.filter(product => {
@@ -28,6 +33,19 @@ const AdminProducts = () => {
     if (filter === "out-of-stock") return matchesSearch && product.stock === 0;
     return matchesSearch;
   });
+
+  const handleDeleteProduct = async (id: string, name: string) => {
+    const confirmed = window.confirm(`Are you sure you want to delete ${name}?`);
+    
+    if (confirmed) {
+      const success = await deleteProduct(id);
+      
+      if (success) {
+        // Remove from local state
+        setProducts(prevProducts => prevProducts.filter(p => p.id !== id));
+      }
+    }
+  };
 
   return (
     <AdminLayout title="Products">
@@ -57,62 +75,95 @@ const AdminProducts = () => {
             <Filter size={18} className="absolute left-3 top-2.5 text-gray-400" />
           </div>
           
-          <Button className="bg-gold hover:bg-gold-dark text-white">
-            <Plus size={18} className="mr-2" />
-            Add Product
-          </Button>
+          <Link to="/admin/products/new">
+            <Button className="bg-gold hover:bg-gold-dark text-white">
+              <Plus size={18} className="mr-2" />
+              Add Product
+            </Button>
+          </Link>
         </div>
       </div>
       
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b">
-                <th className="text-left py-3 px-4 font-medium text-gray-500">ID</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Product</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Category</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Price</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Stock</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Featured</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredProducts.map(product => (
-                <tr key={product.id} className="border-b last:border-0 hover:bg-gray-50">
-                  <td className="py-3 px-4 font-medium">#{product.id}</td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 rounded bg-gray-200 mr-3"></div>
-                      <span>{product.name}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">{product.category}</td>
-                  <td className="py-3 px-4">₹{product.price.toLocaleString()}</td>
-                  <td className="py-3 px-4">
-                    <span className={`${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {product.stock}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className={`inline-block w-4 h-4 rounded-full ${product.featured ? 'bg-green-500' : 'bg-gray-300'}`}></span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex space-x-2">
-                      <button className="p-1 rounded-full hover:bg-gray-100">
-                        <Edit size={18} className="text-blue-500" />
-                      </button>
-                      <button className="p-1 rounded-full hover:bg-gray-100">
-                        <Trash2 size={18} className="text-red-500" />
-                      </button>
-                    </div>
-                  </td>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 size={32} className="animate-spin text-maroon" />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50 border-b">
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">ID</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">Product</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">Category</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">Price</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">Stock</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">Featured</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-500">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map(product => (
+                    <tr key={product.id} className="border-b last:border-0 hover:bg-gray-50">
+                      <td className="py-3 px-4 font-medium">#{product.id.substring(0, 8)}</td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 rounded bg-gray-200 mr-3 overflow-hidden">
+                            {product.image_url && (
+                              <img 
+                                src={product.image_url} 
+                                alt={product.name} 
+                                className="w-full h-full object-cover"
+                              />
+                            )}
+                          </div>
+                          <span>{product.name}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">{product.category}</td>
+                      <td className="py-3 px-4">₹{product.price.toLocaleString()}</td>
+                      <td className="py-3 px-4">
+                        <span className={`${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {product.stock}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        {product.featured ? (
+                          <Check size={18} className="text-green-500" />
+                        ) : (
+                          <X size={18} className="text-gray-400" />
+                        )}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex space-x-2">
+                          <Link to={`/admin/products/edit/${product.id}`}>
+                            <button className="p-1 rounded-full hover:bg-gray-100">
+                              <Edit size={18} className="text-blue-500" />
+                            </button>
+                          </Link>
+                          <button 
+                            className="p-1 rounded-full hover:bg-gray-100"
+                            onClick={() => handleDeleteProduct(product.id, product.name)}
+                          >
+                            <Trash2 size={18} className="text-red-500" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="py-6 text-center text-gray-500">
+                      No products found matching your search.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );

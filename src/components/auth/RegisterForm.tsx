@@ -1,10 +1,11 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Eye, EyeOff, UserPlus } from "lucide-react";
+import { Eye, EyeOff, UserPlus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/AuthProvider";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 export const RegisterForm = () => {
@@ -30,10 +31,20 @@ export const RegisterForm = () => {
       return;
     }
     
+    if (!name || !email || !password) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsLoading(true);
     try {
       await signUp(email, password);
       // The profile will be created by the trigger we set up
+      // We need to update the name in the profile
       const user = (await supabase.auth.getUser()).data.user;
       if (user) {
         await supabase
@@ -79,6 +90,7 @@ export const RegisterForm = () => {
           className="w-full"
           placeholder="Enter your email"
           disabled={isLoading}
+          autoComplete="email"
         />
       </div>
 
@@ -96,6 +108,7 @@ export const RegisterForm = () => {
             className="w-full pr-10"
             placeholder="Create a password"
             disabled={isLoading}
+            autoComplete="new-password"
           />
           <button
             type="button"
@@ -122,6 +135,7 @@ export const RegisterForm = () => {
             className="w-full pr-10"
             placeholder="Confirm your password"
             disabled={isLoading}
+            autoComplete="new-password"
           />
           <button
             type="button"
@@ -136,12 +150,12 @@ export const RegisterForm = () => {
 
       <Button
         type="submit"
-        className="w-full"
+        className="w-full bg-maroon hover:bg-maroon-dark"
         disabled={isLoading}
       >
         {isLoading ? (
           <>
-            <UserPlus size={18} className="mr-2" />
+            <Loader2 size={18} className="mr-2 animate-spin" />
             Creating Account...
           </>
         ) : (

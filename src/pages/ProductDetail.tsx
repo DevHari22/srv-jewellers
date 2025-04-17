@@ -1,42 +1,35 @@
 
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Star, ShoppingCart, Heart, Share2, ChevronRight } from "lucide-react";
+import { Star, ShoppingCart, Heart, Share2, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { fetchProductById, Product } from "@/services/productService";
+import { useCart } from "@/context/CartContext";
 
 const ProductDetail = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const { toast } = useToast();
+  const { addToCart } = useCart();
   
-  // In a real app, this would be fetched from an API
-  const product = {
-    id,
-    name: "22K Gold Traditional Necklace",
-    description: "This exquisite 22K gold necklace features intricate traditional design with meticulous craftsmanship. The piece is adorned with delicate filigree work and small ruby accents, making it perfect for weddings and special occasions.",
-    price: 78500,
-    discountPrice: 72999,
-    rating: 4.8,
-    reviewCount: 24,
-    weight: "25.4 grams",
-    purity: "22K (91.6%)",
-    images: [
-      "https://images.unsplash.com/photo-1608042314453-ae338d80c427?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1602173574767-37ac01994b2a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1601821765780-754fa98637c1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    ],
-    inStock: true,
-    features: [
-      "Handcrafted by skilled artisans",
-      "BIS Hallmarked for guaranteed purity",
-      "Comes with authenticity certificate",
-      "Includes complimentary jewelry box",
-      "Free shipping and insurance",
-    ],
-  };
+  useEffect(() => {
+    const loadProduct = async () => {
+      setLoading(true);
+      if (id) {
+        const fetchedProduct = await fetchProductById(id);
+        setProduct(fetchedProduct);
+      }
+      setLoading(false);
+    };
+    
+    loadProduct();
+  }, [id]);
 
   const incrementQuantity = () => {
     setQuantity(prev => prev + 1);
@@ -47,6 +40,75 @@ const ProductDetail = () => {
       setQuantity(prev => prev - 1);
     }
   };
+  
+  const handleAddToCart = () => {
+    if (!product) return;
+    
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: quantity,
+      image: product.image_url,
+      weight: product.weight
+    });
+    
+    toast({
+      title: "Added to Cart",
+      description: `${product.name} has been added to your cart.`,
+      duration: 3000,
+    });
+  };
+  
+  const handleAddToWishlist = () => {
+    if (!product) return;
+    
+    toast({
+      title: "Added to Wishlist",
+      description: `${product.name} has been added to your wishlist.`,
+      duration: 3000,
+    });
+  };
+  
+  // Create dummy image array if there's only one image
+  const productImages = product?.image_url ? 
+    [product.image_url, ...Array(3).fill(product.image_url)] : 
+    [];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow flex justify-center items-center">
+          <div className="flex flex-col items-center">
+            <Loader2 size={48} className="animate-spin text-maroon mb-4" />
+            <p className="text-gray-600">Loading product details...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow">
+          <div className="container py-16 text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h1>
+            <p className="text-gray-600 mb-8">The product you're looking for doesn't exist or has been removed.</p>
+            <Link to="/categories">
+              <Button className="bg-maroon hover:bg-maroon-dark text-white">
+                Browse Our Collection
+              </Button>
+            </Link>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -56,11 +118,13 @@ const ProductDetail = () => {
         <div className="bg-gray-50 py-3">
           <div className="container">
             <div className="flex items-center text-sm text-gray-500">
-              <a href="/" className="hover:text-gold">Home</a>
+              <Link to="/" className="hover:text-gold">Home</Link>
               <ChevronRight size={14} className="mx-2" />
-              <a href="/categories" className="hover:text-gold">Jewelry</a>
+              <Link to="/categories" className="hover:text-gold">Jewelry</Link>
               <ChevronRight size={14} className="mx-2" />
-              <a href="/categories/necklaces" className="hover:text-gold">Necklaces</a>
+              <Link to={`/categories/${product.category}`} className="hover:text-gold">
+                {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
+              </Link>
               <ChevronRight size={14} className="mx-2" />
               <span className="text-gray-700">{product.name}</span>
             </div>
@@ -75,13 +139,13 @@ const ProductDetail = () => {
               <div className="space-y-4">
                 <div className="bg-gray-100 rounded-lg overflow-hidden aspect-square">
                   <img 
-                    src={product.images[selectedImage]} 
+                    src={productImages[selectedImage]} 
                     alt={product.name} 
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <div className="grid grid-cols-4 gap-2">
-                  {product.images.map((image, index) => (
+                  {productImages.map((image, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
@@ -109,22 +173,23 @@ const ProductDetail = () => {
                         <Star
                           key={i}
                           size={16}
-                          className={i < Math.floor(product.rating) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}
+                          className={i < 4 ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}
                         />
                       ))}
                     </div>
                     <span className="ml-2 text-sm text-gray-600">
-                      {product.rating} ({product.reviewCount} reviews)
+                      4.0 (24 reviews)
                     </span>
                   </div>
                 </div>
 
                 <div className="pt-4 border-t border-gray-200">
-                  <p className="text-gray-500 line-through text-lg">₹{product.price.toLocaleString()}</p>
-                  <p className="text-3xl font-bold text-maroon">₹{product.discountPrice.toLocaleString()}</p>
-                  <p className="text-green-600 text-sm mt-1">
-                    Save ₹{(product.price - product.discountPrice).toLocaleString()} ({Math.round((product.price - product.discountPrice) / product.price * 100)}% off)
-                  </p>
+                  <p className="text-3xl font-bold text-maroon">₹{product.price.toLocaleString()}</p>
+                  {product.stock > 0 ? (
+                    <p className="text-green-600 text-sm mt-1">In Stock ({product.stock} available)</p>
+                  ) : (
+                    <p className="text-red-600 text-sm mt-1">Out of Stock</p>
+                  )}
                 </div>
 
                 <div className="pt-4 border-t border-gray-200">
@@ -134,14 +199,18 @@ const ProductDetail = () => {
 
                 <div className="pt-4 border-t border-gray-200">
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <h3 className="text-sm text-gray-500">Weight</h3>
-                      <p className="font-medium">{product.weight}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm text-gray-500">Purity</h3>
-                      <p className="font-medium">{product.purity}</p>
-                    </div>
+                    {product.weight && (
+                      <div>
+                        <h3 className="text-sm text-gray-500">Weight</h3>
+                        <p className="font-medium">{product.weight}</p>
+                      </div>
+                    )}
+                    {product.purity && (
+                      <div>
+                        <h3 className="text-sm text-gray-500">Purity</h3>
+                        <p className="font-medium">{product.purity}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -164,7 +233,7 @@ const ProductDetail = () => {
                       </button>
                     </div>
                     <p className="text-sm text-gray-500">
-                      {product.inStock ? (
+                      {product.stock > 0 ? (
                         <span className="text-green-600">In Stock</span>
                       ) : (
                         <span className="text-red-600">Out of Stock</span>
@@ -174,11 +243,19 @@ const ProductDetail = () => {
                 </div>
 
                 <div className="pt-4 border-t border-gray-200 flex space-x-4">
-                  <Button className="flex-1 bg-maroon hover:bg-maroon-dark text-white">
+                  <Button 
+                    className="flex-1 bg-maroon hover:bg-maroon-dark text-white"
+                    onClick={handleAddToCart}
+                    disabled={product.stock <= 0}
+                  >
                     <ShoppingCart size={18} className="mr-2" />
                     Add to Cart
                   </Button>
-                  <Button variant="outline" className="border-maroon text-maroon hover:bg-maroon/10">
+                  <Button 
+                    variant="outline" 
+                    className="border-maroon text-maroon hover:bg-maroon/10"
+                    onClick={handleAddToWishlist}
+                  >
                     <Heart size={18} className="mr-2" />
                     Add to Wishlist
                   </Button>
@@ -190,12 +267,26 @@ const ProductDetail = () => {
                 <div className="pt-4 border-t border-gray-200">
                   <h3 className="font-medium text-gray-900 mb-2">Features</h3>
                   <ul className="space-y-1">
-                    {product.features.map((feature, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="text-gold mr-2">•</span>
-                        <span className="text-gray-600">{feature}</span>
-                      </li>
-                    ))}
+                    <li className="flex items-start">
+                      <span className="text-gold mr-2">•</span>
+                      <span className="text-gray-600">Handcrafted by skilled artisans</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-gold mr-2">•</span>
+                      <span className="text-gray-600">BIS Hallmarked for guaranteed purity</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-gold mr-2">•</span>
+                      <span className="text-gray-600">Comes with authenticity certificate</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-gold mr-2">•</span>
+                      <span className="text-gray-600">Includes complimentary jewelry box</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-gold mr-2">•</span>
+                      <span className="text-gray-600">Free shipping and insurance</span>
+                    </li>
                   </ul>
                 </div>
               </div>

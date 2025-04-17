@@ -1,50 +1,26 @@
 
-import React from "react";
-import ProductCard, { Product } from "./ProductCard";
+import React, { useEffect } from "react";
+import ProductCard from "./ProductCard";
 import { useToast } from "@/hooks/use-toast";
-
-// Sample product data
-const featuredProducts: Product[] = [
-  {
-    id: 1,
-    name: "Royal Kundan Necklace Set",
-    price: 125000,
-    image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1587&q=80",
-    category: "Necklaces",
-    isNew: true,
-    isFeatured: true,
-  },
-  {
-    id: 2,
-    name: "Diamond Jhumka Earrings",
-    price: 78500,
-    image: "https://images.unsplash.com/photo-1589118949245-7d38baf380d6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2670&q=80",
-    category: "Earrings",
-    isFeatured: true,
-  },
-  {
-    id: 3,
-    name: "Gold Kada Bracelet",
-    price: 58900,
-    image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-    category: "Bracelets",
-    isFeatured: true,
-  },
-  {
-    id: 4,
-    name: "Emerald Solitaire Ring",
-    price: 45000,
-    image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
-    category: "Rings",
-    isNew: true,
-    isFeatured: true,
-  },
-];
+import { useProducts } from "@/hooks/useProducts";
+import { useCart } from "@/context/CartContext";
+import { toast } from "sonner";
 
 const FeaturedProducts = () => {
+  const { featuredProducts, loading } = useProducts();
   const { toast } = useToast();
+  const { addToCart } = useCart();
 
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = (product: any) => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image: product.image_url || product.image,
+      weight: product.weight
+    });
+    
     toast({
       title: "Added to Cart",
       description: `${product.name} has been added to your cart.`,
@@ -52,7 +28,7 @@ const FeaturedProducts = () => {
     });
   };
 
-  const handleAddToWishlist = (product: Product) => {
+  const handleAddToWishlist = (product: any) => {
     toast({
       title: "Added to Wishlist",
       description: `${product.name} has been added to your wishlist.`,
@@ -73,16 +49,30 @@ const FeaturedProducts = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAddToCart={handleAddToCart}
-              onAddToWishlist={handleAddToWishlist}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-maroon"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredProducts.slice(0, 4).map((product) => (
+              <ProductCard
+                key={product.id}
+                product={{
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  image: product.image_url,
+                  category: product.category,
+                  isNew: false,
+                  isFeatured: true,
+                }}
+                onAddToCart={() => handleAddToCart(product)}
+                onAddToWishlist={() => handleAddToWishlist(product)}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
