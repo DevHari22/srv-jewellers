@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { Trash2, Minus, Plus, ChevronRight, ShoppingBag } from "lucide-react";
@@ -96,7 +97,7 @@ const Cart = () => {
                         key={item.id}
                         item={item}
                         updateQuantity={updateQuantity}
-                        removeItem={removeItem}
+                        removeItem={removeFromCart}
                       />
                     ))}
                   </div>
