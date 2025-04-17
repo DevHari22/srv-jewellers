@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { 
@@ -7,13 +8,16 @@ import {
   Search, 
   Menu, 
   X,
-  ChevronDown
+  ChevronDown,
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/AuthProvider";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const { user, signOut } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -23,6 +27,11 @@ const Navbar = () => {
     e.preventDefault();
     // Search logic would go here
     console.log("Searching for:", searchQuery);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    setIsMenuOpen(false);
   };
 
   return (
@@ -94,9 +103,30 @@ const Navbar = () => {
                   2
                 </span>
               </Link>
-              <Link to="/login" className="hover:text-gold hidden md:block">
-                <User size={24} />
-              </Link>
+              {user ? (
+                <div className="relative group hidden md:block">
+                  <button className="hover:text-gold">
+                    <User size={24} />
+                  </button>
+                  <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-20 hidden group-hover:block">
+                    <Link to="/account" className="block px-4 py-2 hover:bg-gold-light transition-colors">My Account</Link>
+                    <Link to="/orders" className="block px-4 py-2 hover:bg-gold-light transition-colors">My Orders</Link>
+                    {user.role === 'admin' && (
+                      <Link to="/admin" className="block px-4 py-2 hover:bg-gold-light transition-colors">Admin Dashboard</Link>
+                    )}
+                    <button 
+                      onClick={handleSignOut}
+                      className="block w-full text-left px-4 py-2 hover:bg-gold-light transition-colors text-red-600"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <Link to="/login" className="hover:text-gold hidden md:block">
+                  <User size={24} />
+                </Link>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -169,12 +199,41 @@ const Navbar = () => {
                 Contact
               </Link>
               <hr className="my-4" />
-              <Link to="/login" className="block hover:text-gold" onClick={toggleMenu}>
-                Login / Register
-              </Link>
-              <Link to="/wishlist" className="block hover:text-gold" onClick={toggleMenu}>
-                My Wishlist
-              </Link>
+              
+              {user ? (
+                <>
+                  <Link to="/account" className="block hover:text-gold" onClick={toggleMenu}>
+                    My Account
+                  </Link>
+                  <Link to="/orders" className="block hover:text-gold" onClick={toggleMenu}>
+                    My Orders
+                  </Link>
+                  <Link to="/wishlist" className="block hover:text-gold" onClick={toggleMenu}>
+                    My Wishlist
+                  </Link>
+                  {user.role === 'admin' && (
+                    <Link to="/admin" className="block hover:text-gold" onClick={toggleMenu}>
+                      Admin Dashboard
+                    </Link>
+                  )}
+                  <button 
+                    onClick={handleSignOut}
+                    className="block w-full text-left text-red-600 hover:text-red-800"
+                  >
+                    <LogOut size={18} className="inline mr-2" />
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" className="block hover:text-gold" onClick={toggleMenu}>
+                    Login / Register
+                  </Link>
+                  <Link to="/wishlist" className="block hover:text-gold" onClick={toggleMenu}>
+                    My Wishlist
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

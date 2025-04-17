@@ -29,34 +29,65 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Function to fetch user role from profiles table
+  const fetchUserRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+      
+      if (error) {
+        console.error("Error fetching user role:", error);
+        return null;
+      }
+      
+      return data?.role || 'customer'; // Default to customer if role not found
+    } catch (error) {
+      console.error("Error in fetchUserRole:", error);
+      return null;
+    }
+  };
+
+  const updateUserState = async (session: Session | null) => {
+    if (session) {
+      let role = null;
+      
+      // Attempt to get role from user metadata first (useful for social logins)
+      const metadataRole = session.user.user_metadata?.role;
+      
+      if (!metadataRole) {
+        // If not in metadata, try to get from profiles table
+        role = await fetchUserRole(session.user.id);
+      } else {
+        role = metadataRole;
+      }
+      
+      setUser({
+        id: session.user.id,
+        email: session.user.email,
+        role: role || 'customer' // Default to customer if no role found
+      });
+      
+      setSession(session);
+    } else {
+      setUser(null);
+      setSession(null);
+    }
+  };
+
   useEffect(() => {
     // Set up the auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (session) {
-          setUser({
-            id: session.user.id,
-            email: session.user.email,
-            role: session.user.role
-          });
-          setSession(session);
-        } else {
-          setUser(null);
-          setSession(null);
-        }
+      async (event, session) => {
+        await updateUserState(session);
       }
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setUser({
-          id: session.user.id,
-          email: session.user.email,
-          role: session.user.role
-        });
-        setSession(session);
-      }
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      await updateUserState(session);
       setLoading(false);
     });
 
@@ -74,7 +105,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) throw error;
 
-      navigate("/");
+      // Redirect based on role
+      const { data } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', (await supabase.auth.getUser()).data.user?.id)
+        .single();
+
+      if (data?.role === 'admin') {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
+
       toast({
         title: "Welcome back!",
         description: "You have successfully signed in.",
@@ -90,12 +133,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      // Create the user in Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (authError) throw authError;
+
+      // If auth was successful, create a profile entry with default role
+      if (authData.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([
+            { 
+              id: authData.user.id, 
+              email: email,
+              role: 'customer' // Default role for new users
+            }
+          ]);
+
+        if (profileError) {
+          console.error("Error creating profile:", profileError);
+          // Continue anyway, as the auth user was created
+        }
+      }
 
       toast({
         title: "Welcome!",

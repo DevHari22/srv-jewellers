@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
   Package, 
@@ -9,9 +9,12 @@ import {
   Settings, 
   LogOut 
 } from "lucide-react";
+import { useAuth } from "@/components/AuthProvider";
 
 const AdminSidebar = () => {
   const location = useLocation();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -24,6 +27,10 @@ const AdminSidebar = () => {
     { path: "/admin/users", icon: Users, label: "Users" },
     { path: "/admin/settings", icon: Settings, label: "Settings" },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <div className="w-64 h-screen bg-maroon-dark text-white fixed left-0 top-0 overflow-y-auto">
@@ -51,13 +58,13 @@ const AdminSidebar = () => {
         </nav>
       </div>
       <div className="absolute bottom-0 left-0 w-full p-6">
-        <Link
-          to="/logout"
-          className="flex items-center px-4 py-3 text-gray-300 hover:text-gold-light transition-colors"
+        <button
+          onClick={handleSignOut}
+          className="flex items-center px-4 py-3 w-full text-left text-gray-300 hover:text-gold-light transition-colors"
         >
           <LogOut size={20} className="mr-3" />
           <span>Logout</span>
-        </Link>
+        </button>
       </div>
     </div>
   );
