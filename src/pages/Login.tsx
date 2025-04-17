@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/components/AuthProvider";
 import { LoginForm } from "@/components/auth/LoginForm";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
