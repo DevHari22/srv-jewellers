@@ -118,27 +118,33 @@ export type Database = {
         Row: {
           address: string | null
           created_at: string | null
+          email: string | null
           first_name: string | null
           id: string
           last_name: string | null
+          name: string | null
           phone: string | null
           role: string | null
         }
         Insert: {
           address?: string | null
           created_at?: string | null
+          email?: string | null
           first_name?: string | null
           id: string
           last_name?: string | null
+          name?: string | null
           phone?: string | null
           role?: string | null
         }
         Update: {
           address?: string | null
           created_at?: string | null
+          email?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
+          name?: string | null
           phone?: string | null
           role?: string | null
         }

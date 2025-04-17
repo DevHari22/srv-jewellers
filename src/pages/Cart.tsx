@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Trash2, Minus, Plus, ChevronRight, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { useCart } from "@/context/CartContext";
 
 const CartItem = ({ item, updateQuantity, removeItem }: any) => {
   return (
@@ -57,21 +58,7 @@ const CartItem = ({ item, updateQuantity, removeItem }: any) => {
 };
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState([]);
-  
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
-  };
-  
-  const removeItem = (id: number) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
-  };
+  const { cartItems, updateQuantity, removeFromCart } = useCart();
   
   const subtotal = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,

@@ -1,11 +1,11 @@
-
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export const RegisterForm = () => {
   const [name, setName] = useState("");
@@ -17,7 +17,6 @@ export const RegisterForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,9 +32,15 @@ export const RegisterForm = () => {
     
     setIsLoading(true);
     try {
-      // The role will be set to 'customer' by default in Supabase
       await signUp(email, password);
-      // Registration is handled by AuthProvider, which includes navigation
+      // The profile will be created by the trigger we set up
+      const user = (await supabase.auth.getUser()).data.user;
+      if (user) {
+        await supabase
+          .from('profiles')
+          .update({ name: name })
+          .eq('id', user.id);
+      }
     } catch (error) {
       console.error("Registration error:", error);
     } finally {
