@@ -135,10 +135,12 @@ const Cart = () => {
                     </div>
                   </div>
                   <div className="px-6 py-4 bg-gray-50 border-t">
-                    <Button className="w-full bg-maroon hover:bg-maroon-dark text-white">
-                      <ShoppingBag size={18} className="mr-2" />
-                      Proceed to Checkout
-                    </Button>
+                    <Link to="/checkout">
+                      <Button className="w-full bg-maroon hover:bg-maroon-dark text-white">
+                        <ShoppingBag size={18} className="mr-2" />
+                        Proceed to Checkout
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </div>

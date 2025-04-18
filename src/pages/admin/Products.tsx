@@ -5,7 +5,7 @@ import { Plus, Edit, Trash2, Search, Filter, Loader2, Check, X } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { fetchProducts, deleteProduct, Product } from "@/services/productService";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const AdminProducts = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -13,6 +13,7 @@ const AdminProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   useEffect(() => {
     const loadProducts = async () => {
@@ -75,12 +76,13 @@ const AdminProducts = () => {
             <Filter size={18} className="absolute left-3 top-2.5 text-gray-400" />
           </div>
           
-          <Link to="/admin/products/new">
-            <Button className="bg-gold hover:bg-gold-dark text-white">
-              <Plus size={18} className="mr-2" />
-              Add Product
-            </Button>
-          </Link>
+          <Button 
+            className="bg-gold hover:bg-gold-dark text-white"
+            onClick={() => navigate('/admin/products/new')}
+          >
+            <Plus size={18} className="mr-2" />
+            Add Product
+          </Button>
         </div>
       </div>
       

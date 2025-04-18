@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/Layout";
 import { Search, Filter, Plus, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Link, useNavigate } from "react-router-dom";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -11,6 +13,7 @@ const AdminUsers = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Fetch users from profiles table
   useEffect(() => {
@@ -124,7 +127,10 @@ const AdminUsers = () => {
             <Filter size={18} className="absolute left-3 top-2.5 text-gray-400" />
           </div>
           
-          <Button className="bg-gold hover:bg-gold-dark text-white">
+          <Button 
+            className="bg-gold hover:bg-gold-dark text-white"
+            onClick={() => navigate('/admin/users/new')}
+          >
             <Plus size={18} className="mr-2" />
             Add User
           </Button>
@@ -162,7 +168,7 @@ const AdminUsers = () => {
                     <div className="flex space-x-2">
                       <button 
                         className="p-1 rounded-full hover:bg-gray-100"
-                        onClick={() => {/* Open edit user modal */}}
+                        onClick={() => {/* We'll add user editing in a future update */}}
                       >
                         <Edit size={18} className="text-blue-500" />
                       </button>

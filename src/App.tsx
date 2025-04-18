@@ -17,6 +17,7 @@ import Register from "@/pages/Register";
 import Contact from "@/pages/Contact";
 import About from "@/pages/About";
 import Cart from "@/pages/Cart";
+import Checkout from "@/pages/Checkout";
 import Wishlist from "@/pages/Wishlist";
 import ProductDetail from "@/pages/ProductDetail";
 import ProductCategory from "@/pages/ProductCategory";
@@ -29,8 +30,10 @@ import UserOrders from "@/pages/user/Orders";
 // Admin pages
 import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminProducts from "@/pages/admin/Products";
+import AdminAddEditProduct from "@/pages/admin/AddEditProduct";
 import AdminOrders from "@/pages/admin/Orders";
 import AdminUsers from "@/pages/admin/Users";
+import AdminAddEditUser from "@/pages/admin/AddEditUser";
 import AdminSettings from "@/pages/admin/Settings";
 
 const queryClient = new QueryClient();
@@ -60,6 +63,7 @@ const App = () => {
                 
                 {/* Protected client routes */}
                 <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+                <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
                 <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/categories/:category" element={<ProductCategory />} />
@@ -69,8 +73,11 @@ const App = () => {
                 {/* Protected admin routes */}
                 <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
                 <Route path="/admin/products" element={<ProtectedRoute adminOnly><AdminProducts /></ProtectedRoute>} />
+                <Route path="/admin/products/new" element={<ProtectedRoute adminOnly><AdminAddEditProduct /></ProtectedRoute>} />
+                <Route path="/admin/products/edit/:id" element={<ProtectedRoute adminOnly><AdminAddEditProduct /></ProtectedRoute>} />
                 <Route path="/admin/orders" element={<ProtectedRoute adminOnly><AdminOrders /></ProtectedRoute>} />
                 <Route path="/admin/users" element={<ProtectedRoute adminOnly><AdminUsers /></ProtectedRoute>} />
+                <Route path="/admin/users/new" element={<ProtectedRoute adminOnly><AdminAddEditUser /></ProtectedRoute>} />
                 <Route path="/admin/settings" element={<ProtectedRoute adminOnly><AdminSettings /></ProtectedRoute>} />
                 
                 {/* Catch-all route */}
