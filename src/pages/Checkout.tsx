@@ -348,7 +348,7 @@ const Checkout = () => {
                         <h3 className="text-sm font-medium">{item.name}</h3>
                         <p className="text-sm text-gray-500 mt-1">Qty: {item.quantity}</p>
                         <p className="text-sm font-medium text-gray-900 mt-1">
-                          ₹{item.price.toLocaleString()}
+                          ₹{item.price?.toLocaleString() || '0'}
                         </p>
                       </div>
                     </div>
@@ -358,19 +358,19 @@ const Checkout = () => {
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium">₹{subtotal.toLocaleString()}</span>
+                    <span className="font-medium">₹{subtotal?.toLocaleString() || '0'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
-                    <span className="font-medium">{shipping === 0 ? 'Free' : `₹${shipping.toLocaleString()}`}</span>
+                    <span className="font-medium">{shipping === 0 ? 'Free' : `₹${shipping?.toLocaleString() || '0'}`}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Tax (3%)</span>
-                    <span className="font-medium">₹{tax.toLocaleString()}</span>
+                    <span className="font-medium">₹{tax?.toLocaleString() || '0'}</span>
                   </div>
                   <div className="border-t pt-3 mt-3 flex justify-between">
                     <span className="font-medium text-lg">Total</span>
-                    <span className="font-bold text-xl text-maroon">₹{total.toLocaleString()}</span>
+                    <span className="font-bold text-xl text-maroon">₹{total?.toLocaleString() || '0'}</span>
                   </div>
                 </div>
                 

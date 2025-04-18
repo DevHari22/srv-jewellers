@@ -78,6 +78,7 @@ const App = () => {
                 <Route path="/admin/orders" element={<ProtectedRoute adminOnly><AdminOrders /></ProtectedRoute>} />
                 <Route path="/admin/users" element={<ProtectedRoute adminOnly><AdminUsers /></ProtectedRoute>} />
                 <Route path="/admin/users/new" element={<ProtectedRoute adminOnly><AdminAddEditUser /></ProtectedRoute>} />
+                <Route path="/admin/users/edit/:id" element={<ProtectedRoute adminOnly><AdminAddEditUser /></ProtectedRoute>} />
                 <Route path="/admin/settings" element={<ProtectedRoute adminOnly><AdminSettings /></ProtectedRoute>} />
                 
                 {/* Catch-all route */}

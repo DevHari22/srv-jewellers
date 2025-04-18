@@ -85,20 +85,6 @@ const AdminUsers = () => {
     }
   };
 
-  // Status badge color
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Active":
-        return "bg-green-100 text-green-800";
-      case "Inactive":
-        return "bg-gray-100 text-gray-800";
-      case "Blocked":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   return (
     <AdminLayout title="Users">
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
@@ -153,35 +139,43 @@ const AdminUsers = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map(user => (
-                <tr key={user.id} className="border-b last:border-0 hover:bg-gray-50">
-                  <td className="py-3 px-4">{user.name || 'N/A'}</td>
-                  <td className="py-3 px-4">{user.email || 'N/A'}</td>
-                  <td className="py-3 px-4">
-                    <span className={`inline-block px-2 py-1 text-xs rounded-full ${
-                      user.role === "admin" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800"
-                    }`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex space-x-2">
-                      <button 
-                        className="p-1 rounded-full hover:bg-gray-100"
-                        onClick={() => {/* We'll add user editing in a future update */}}
-                      >
-                        <Edit size={18} className="text-blue-500" />
-                      </button>
-                      <button 
-                        className="p-1 rounded-full hover:bg-gray-100"
-                        onClick={() => handleDeleteUser(user.id)}
-                      >
-                        <Trash2 size={18} className="text-red-500" />
-                      </button>
-                    </div>
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map(user => (
+                  <tr key={user.id} className="border-b last:border-0 hover:bg-gray-50">
+                    <td className="py-3 px-4">{user.name || 'N/A'}</td>
+                    <td className="py-3 px-4">{user.email || 'N/A'}</td>
+                    <td className="py-3 px-4">
+                      <span className={`inline-block px-2 py-1 text-xs rounded-full ${
+                        user.role === "admin" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800"
+                      }`}>
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex space-x-2">
+                        <button 
+                          className="p-1 rounded-full hover:bg-gray-100"
+                          onClick={() => navigate(`/admin/users/edit/${user.id}`)}
+                        >
+                          <Edit size={18} className="text-blue-500" />
+                        </button>
+                        <button 
+                          className="p-1 rounded-full hover:bg-gray-100"
+                          onClick={() => handleDeleteUser(user.id)}
+                        >
+                          <Trash2 size={18} className="text-red-500" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="py-6 text-center text-gray-500">
+                    No users found matching your search criteria.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         )}
