@@ -33,7 +33,6 @@ export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -48,10 +47,13 @@ export const LoginForm = () => {
   const onSubmit = async (data: FormValues) => {
     try {
       await signIn(data.email, data.password);
-      
-      // The AuthProvider will handle redirection based on role
     } catch (error: any) {
       console.error("Login error:", error);
+      toast({
+        title: "Error signing in",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -129,4 +131,3 @@ export const LoginForm = () => {
       </form>
     </Form>
   );
-};

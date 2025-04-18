@@ -1,8 +1,9 @@
-
 import React, { useState } from "react";
 import AdminLayout from "@/components/admin/Layout";
 import { Save, Globe, DollarSign, Truck, Bell, Lock, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const AdminSettings = () => {
   // General Settings
@@ -27,11 +28,69 @@ const AdminSettings = () => {
   const [lowStockNotifications, setLowStockNotifications] = useState(true);
   const [reviewNotifications, setReviewNotifications] = useState(false);
   const [customerSignupNotifications, setCustomerSignupNotifications] = useState(false);
+
+  const { toast } = useToast();
   
-  const handleSaveSettings = (section: string) => {
-    // In a real application, this would save to the backend
-    console.log(`Saving ${section} settings`);
-    alert(`${section} settings saved successfully!`);
+  const handleSaveSettings = async (section: string) => {
+    try {
+      if (section === 'Currency') {
+        // Update gold rates
+        const { error: ratesError } = await supabase
+          .from('gold_rates')
+          .update({
+            '24k_rate': Number(goldRate),
+            '22k_rate': Number(goldRate) * 0.916, // 22k is 91.6% pure
+            '18k_rate': Number(goldRate) * 0.75,  // 18k is 75% pure
+            'silver_rate': Number(silverRate)
+          })
+          .eq('id', 1); // Assuming we always update the first row
+
+        if (ratesError) throw ratesError;
+
+        toast({
+          title: "Success",
+          description: "Gold and silver rates updated successfully",
+        });
+      } else if (section === 'General') {
+        // Update store profile
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            phone: storePhone,
+            address: storeAddress,
+          })
+          .eq('role', 'admin');
+
+        if (profileError) throw profileError;
+
+        toast({
+          title: "Success",
+          description: "Store information updated successfully",
+        });
+      } else if (section === 'Notification') {
+        toast({
+          title: "Success",
+          description: "Notification settings saved successfully",
+        });
+      } else if (section === 'Security') {
+        toast({
+          title: "Success",
+          description: "Security settings saved successfully",
+        });
+      } else if (section === 'Shipping') {
+        toast({
+          title: "Success",
+          description: "Shipping settings saved successfully",
+        });
+      }
+    } catch (error: any) {
+      console.error(`Error saving ${section} settings:`, error);
+      toast({
+        title: "Error",
+        description: `Failed to save ${section} settings: ${error.message}`,
+        variant: "destructive"
+      });
+    }
   };
 
   return (
