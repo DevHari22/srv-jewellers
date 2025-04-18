@@ -85,8 +85,10 @@ export type Database = {
           image_url: string | null
           name: string
           price: number
+          purity: string | null
           stock: number
           updated_at: string | null
+          weight: string | null
         }
         Insert: {
           category: string
@@ -97,8 +99,10 @@ export type Database = {
           image_url?: string | null
           name: string
           price: number
+          purity?: string | null
           stock?: number
           updated_at?: string | null
+          weight?: string | null
         }
         Update: {
           category?: string
@@ -109,8 +113,10 @@ export type Database = {
           image_url?: string | null
           name?: string
           price?: number
+          purity?: string | null
           stock?: number
           updated_at?: string | null
+          weight?: string | null
         }
         Relationships: []
       }

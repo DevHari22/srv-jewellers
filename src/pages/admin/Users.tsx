@@ -1,35 +1,87 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/Layout";
 import { Search, Filter, Plus, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const AdminUsers = () => {
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
-  
-  // Sample users data
-  const users = [
-    { id: 1, name: "Rahul Sharma", email: "rahul.sharma@example.com", role: "Customer", status: "Active", orders: 5, lastLogin: "Apr 15, 2025" },
-    { id: 2, name: "Priya Patel", email: "priya.patel@example.com", role: "Customer", status: "Active", orders: 3, lastLogin: "Apr 14, 2025" },
-    { id: 3, name: "Amit Kumar", email: "amit.kumar@example.com", role: "Customer", status: "Inactive", orders: 0, lastLogin: "Mar 20, 2025" },
-    { id: 4, name: "Neha Singh", email: "neha.singh@example.com", role: "Customer", status: "Active", orders: 8, lastLogin: "Apr 12, 2025" },
-    { id: 5, name: "Sunil Verma", email: "sunil.verma@example.com", role: "Admin", status: "Active", orders: 0, lastLogin: "Apr 16, 2025" },
-    { id: 6, name: "Vikram Reddy", email: "vikram.reddy@example.com", role: "Customer", status: "Active", orders: 2, lastLogin: "Apr 10, 2025" },
-    { id: 7, name: "Priya Sharma", email: "priya.sharma@example.com", role: "Admin", status: "Active", orders: 0, lastLogin: "Apr 16, 2025" },
-    { id: 8, name: "Ananya Gupta", email: "ananya.gupta@example.com", role: "Customer", status: "Blocked", orders: 1, lastLogin: "Feb 28, 2025" },
-  ];
-  
+  const { toast } = useToast();
+
+  // Fetch users from profiles table
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*');
+        
+        if (error) {
+          throw error;
+        }
+        
+        setUsers(data || []);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch users",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
   // Filter users based on search and role
   const filteredUsers = users.filter(user => {
     const matchesSearch = 
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase());
+      user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchQuery.toLowerCase());
     
     if (roleFilter === "all") return matchesSearch;
     return matchesSearch && user.role.toLowerCase() === roleFilter.toLowerCase();
   });
-  
+
+  // Handle user deletion
+  const handleDeleteUser = async (userId: string) => {
+    const confirmed = window.confirm("Are you sure you want to delete this user?");
+    
+    if (confirmed) {
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .delete()
+          .eq('id', userId);
+        
+        if (error) throw error;
+        
+        // Remove user from local state
+        setUsers(users.filter(user => user.id !== userId));
+        
+        toast({
+          title: "User Deleted",
+          description: "User has been successfully deleted",
+        });
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        toast({
+          title: "Error",
+          description: "Failed to delete user",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
   // Status badge color
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -80,46 +132,44 @@ const AdminUsers = () => {
       </div>
       
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="overflow-x-auto">
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-maroon"></div>
+          </div>
+        ) : (
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50 border-b">
-                <th className="text-left py-3 px-4 font-medium text-gray-500">ID</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-500">Name</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-500">Email</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-500">Role</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Orders</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Last Login</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-500">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredUsers.map(user => (
                 <tr key={user.id} className="border-b last:border-0 hover:bg-gray-50">
-                  <td className="py-3 px-4 font-medium">#{user.id}</td>
-                  <td className="py-3 px-4">{user.name}</td>
-                  <td className="py-3 px-4">{user.email}</td>
+                  <td className="py-3 px-4">{user.name || 'N/A'}</td>
+                  <td className="py-3 px-4">{user.email || 'N/A'}</td>
                   <td className="py-3 px-4">
                     <span className={`inline-block px-2 py-1 text-xs rounded-full ${
-                      user.role === "Admin" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800"
+                      user.role === "admin" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800"
                     }`}>
                       {user.role}
                     </span>
                   </td>
                   <td className="py-3 px-4">
-                    <span className={`inline-block px-2 py-1 text-xs rounded-full ${getStatusColor(user.status)}`}>
-                      {user.status}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">{user.orders}</td>
-                  <td className="py-3 px-4">{user.lastLogin}</td>
-                  <td className="py-3 px-4">
                     <div className="flex space-x-2">
-                      <button className="p-1 rounded-full hover:bg-gray-100">
+                      <button 
+                        className="p-1 rounded-full hover:bg-gray-100"
+                        onClick={() => {/* Open edit user modal */}}
+                      >
                         <Edit size={18} className="text-blue-500" />
                       </button>
-                      <button className="p-1 rounded-full hover:bg-gray-100">
+                      <button 
+                        className="p-1 rounded-full hover:bg-gray-100"
+                        onClick={() => handleDeleteUser(user.id)}
+                      >
                         <Trash2 size={18} className="text-red-500" />
                       </button>
                     </div>
@@ -128,29 +178,7 @@ const AdminUsers = () => {
               ))}
             </tbody>
           </table>
-        </div>
-        
-        <div className="py-3 px-4 bg-gray-50 border-t">
-          <div className="flex justify-between items-center">
-            <p className="text-sm text-gray-500">
-              Showing {filteredUsers.length} of {users.length} users
-            </p>
-            <div className="flex space-x-1">
-              <Button variant="outline" size="sm" className="border-gray-300" disabled>
-                Previous
-              </Button>
-              <Button variant="outline" size="sm" className="border-gray-300 bg-gold/10">
-                1
-              </Button>
-              <Button variant="outline" size="sm" className="border-gray-300">
-                2
-              </Button>
-              <Button variant="outline" size="sm" className="border-gray-300">
-                Next
-              </Button>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </AdminLayout>
   );

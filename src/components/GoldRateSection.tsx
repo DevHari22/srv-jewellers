@@ -1,52 +1,82 @@
-
 import React, { useState, useEffect } from "react";
 import { TrendingUp, TrendingDown, Clock } from "lucide-react";
-
-// In a real app, this would be fetched from an API
-const fetchGoldRates = async () => {
-  // Simulate API call with a delay
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        rates: {
-          "24k": { price: 5487, change: 0.8, trend: "up" },
-          "22k": { price: 5121, change: 0.6, trend: "up" },
-          "18k": { price: 4115, change: 0.5, trend: "up" }
-        },
-        lastUpdated: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      });
-    }, 1000);
-  });
-};
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const GoldRateSection = () => {
   const [goldRates, setGoldRates] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState("");
 
-  useEffect(() => {
-    const getGoldRates = async () => {
-      setLoading(true);
-      try {
-        const data: any = await fetchGoldRates();
-        setGoldRates(data.rates);
-        setLastUpdated(data.lastUpdated);
-      } catch (error) {
+  const fetchGoldRates = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('gold_rates')
+        .select('*')
+        .single();
+      
+      if (error) {
         console.error("Error fetching gold rates:", error);
-      } finally {
-        setLoading(false);
+        toast.error("Failed to fetch gold rates");
+        return;
       }
+
+      if (data) {
+        setGoldRates({
+          "24k": { 
+            price: data['24k_rate'], 
+            change: data['24k_change'], 
+            trend: data['24k_trend'] 
+          },
+          "22k": { 
+            price: data['22k_rate'], 
+            change: data['22k_change'], 
+            trend: data['22k_trend'] 
+          },
+          "18k": { 
+            price: data['18k_rate'], 
+            change: data['18k_change'], 
+            trend: data['18k_trend'] 
+          }
+        });
+        setLastUpdated(new Date(data.updated_at).toLocaleTimeString());
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      toast.error("Unexpected error fetching gold rates");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGoldRates();
+
+    const channel = supabase
+      .channel('gold_rates_changes')
+      .on(
+        'postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'gold_rates' 
+        },
+        (payload) => {
+          fetchGoldRates();
+        }
+      )
+      .subscribe();
+
+    const intervalId = setInterval(fetchGoldRates, 5 * 60 * 1000);
+
+    return () => {
+      clearInterval(intervalId);
+      supabase.removeChannel(channel);
     };
-
-    getGoldRates();
-
-    // Refresh gold rates every 5 minutes
-    const intervalId = setInterval(getGoldRates, 5 * 60 * 1000);
-    return () => clearInterval(intervalId);
   }, []);
 
   const calculateTola = (pricePerGram: number) => {
-    // 1 Tola = 11.664 grams
     return (pricePerGram * 11.664).toFixed(0);
   };
 
@@ -78,7 +108,6 @@ const GoldRateSection = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* 24 Karat Gold */}
           <div className="bg-maroon-dark rounded-lg p-6 shadow-md border border-gold/20">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-serif font-medium">24 Karat Gold</h3>
@@ -108,7 +137,6 @@ const GoldRateSection = () => {
             </div>
           </div>
 
-          {/* 22 Karat Gold */}
           <div className="bg-maroon-dark rounded-lg p-6 shadow-md border border-gold/20">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-serif font-medium">22 Karat Gold</h3>
@@ -138,7 +166,6 @@ const GoldRateSection = () => {
             </div>
           </div>
 
-          {/* 18 Karat Gold */}
           <div className="bg-maroon-dark rounded-lg p-6 shadow-md border border-gold/20">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-serif font-medium">18 Karat Gold</h3>
