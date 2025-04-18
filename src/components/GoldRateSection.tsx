@@ -3,10 +3,24 @@ import React, { useState, useEffect } from "react";
 import { TrendingUp, TrendingDown, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Tables } from "@/integrations/supabase/types";
+
+// Define the type for the gold rates
+type GoldRate = {
+  id: string;
+  "24k_rate": number;
+  "24k_change": number;
+  "24k_trend": string;
+  "22k_rate": number;
+  "22k_change": number;
+  "22k_trend": string;
+  "18k_rate": number;
+  "18k_change": number;
+  "18k_trend": string;
+  updated_at: string;
+};
 
 const GoldRateSection = () => {
-  const [goldRates, setGoldRates] = useState<Tables.gold_rates | null>(null);
+  const [goldRates, setGoldRates] = useState<GoldRate | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState("");
 
