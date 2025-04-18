@@ -9,6 +9,48 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      gold_rates: {
+        Row: {
+          "18k_change": number
+          "18k_rate": number
+          "18k_trend": string
+          "22k_change": number
+          "22k_rate": number
+          "22k_trend": string
+          "24k_change": number
+          "24k_rate": number
+          "24k_trend": string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          "18k_change"?: number
+          "18k_rate"?: number
+          "18k_trend"?: string
+          "22k_change"?: number
+          "22k_rate"?: number
+          "22k_trend"?: string
+          "24k_change"?: number
+          "24k_rate"?: number
+          "24k_trend"?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          "18k_change"?: number
+          "18k_rate"?: number
+          "18k_trend"?: string
+          "22k_change"?: number
+          "22k_rate"?: number
+          "22k_trend"?: string
+          "24k_change"?: number
+          "24k_rate"?: number
+          "24k_trend"?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           id: string
