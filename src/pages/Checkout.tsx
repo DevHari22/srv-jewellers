@@ -34,7 +34,10 @@ const Checkout = () => {
   
   // Calculate totals
   const subtotal = cartItems.reduce(
-    (total, item) => total + (typeof item.price === 'number' ? item.price : 0) * item.quantity,
+    (total, item) => {
+      const itemPrice = typeof item.price === 'number' ? item.price : 0;
+      return total + (itemPrice * item.quantity);
+    },
     0
   );
   const shipping = 0; // Free shipping
@@ -95,7 +98,7 @@ const Checkout = () => {
         order_id: orderData.id,
         product_id: item.id,
         quantity: item.quantity,
-        price_at_time: item.price
+        price_at_time: typeof item.price === 'number' ? item.price : 0
       }));
       
       const { error: itemsError } = await supabase
@@ -342,24 +345,28 @@ const Checkout = () => {
                 <h2 className="font-medium text-lg mb-4">Order Summary</h2>
                 
                 <div className="max-h-80 overflow-y-auto mb-4">
-                  {cartItems.map(item => (
-                    <div key={item.id} className="flex py-3 border-b last:border-0">
-                      <div className="w-16 h-16 flex-shrink-0 overflow-hidden rounded-md">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                        />
+                  {cartItems.map(item => {
+                    const itemPrice = typeof item.price === 'number' ? item.price : 0;
+                    
+                    return (
+                      <div key={item.id} className="flex py-3 border-b last:border-0">
+                        <div className="w-16 h-16 flex-shrink-0 overflow-hidden rounded-md">
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="ml-4 flex-1">
+                          <h3 className="text-sm font-medium">{item.name}</h3>
+                          <p className="text-sm text-gray-500 mt-1">Qty: {item.quantity}</p>
+                          <p className="text-sm font-medium text-gray-900 mt-1">
+                            ₹{itemPrice.toLocaleString()}
+                          </p>
+                        </div>
                       </div>
-                      <div className="ml-4 flex-1">
-                        <h3 className="text-sm font-medium">{item.name}</h3>
-                        <p className="text-sm text-gray-500 mt-1">Qty: {item.quantity}</p>
-                        <p className="text-sm font-medium text-gray-900 mt-1">
-                          ₹{(typeof item.price === 'number' ? item.price : 0).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 
                 <div className="space-y-3 text-sm">

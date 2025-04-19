@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import AdminLayout from "@/components/admin/Layout";
 import { Save, Globe, DollarSign, Truck, Bell, Lock, Shield } from "lucide-react";
@@ -52,11 +53,11 @@ const AdminSettings = () => {
           description: "Gold and silver rates updated successfully",
         });
       } else if (section === 'General') {
-        // Update store profile - make sure storePhone is passed as a string
+        // Update store profile
         const { error: profileError } = await supabase
           .from('profiles')
           .update({
-            phone: storePhone,
+            phone: storePhone.toString(), // Convert to string explicitly
             address: storeAddress,
           })
           .eq('role', 'admin');
