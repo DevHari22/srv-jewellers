@@ -7,9 +7,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress"; 
 
 const Login = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
   const { toast } = useToast();
 
@@ -52,15 +53,24 @@ const Login = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow flex items-center justify-center bg-gray-50 py-12">
-        <div className="max-w-md w-full p-8 bg-white shadow-lg rounded-lg">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-maroon via-gold to-maroon bg-clip-text text-transparent">
-              Welcome Back
-            </h1>
-            <p className="text-gray-600 mt-2">Sign in to your account</p>
+        {loading ? (
+          <div className="max-w-md w-full p-8 bg-white shadow-lg rounded-lg">
+            <div className="text-center">
+              <h2 className="text-lg font-medium mb-4">Authenticating...</h2>
+              <Progress className="h-2" value={75} />
+            </div>
           </div>
-          <LoginForm />
-        </div>
+        ) : (
+          <div className="max-w-md w-full p-8 bg-white shadow-lg rounded-lg">
+            <div className="text-center mb-8">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-maroon via-gold to-maroon bg-clip-text text-transparent">
+                Welcome Back
+              </h1>
+              <p className="text-gray-600 mt-2">Sign in to your account</p>
+            </div>
+            <LoginForm />
+          </div>
+        )}
       </main>
       <Footer />
     </div>
