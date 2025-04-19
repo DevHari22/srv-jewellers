@@ -5,6 +5,7 @@ import { Save, Globe, DollarSign, Truck, Bell, Lock, Shield } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
 
 const AdminSettings = () => {
   // General Settings
@@ -35,14 +36,18 @@ const AdminSettings = () => {
   const handleSaveSettings = async (section: string) => {
     try {
       if (section === 'Currency') {
-        // Update gold rates - convert string to number
+        // Parse string inputs to numbers for the database
+        const goldRateNum = parseFloat(goldRate);
+        const silverRateNum = parseFloat(silverRate);
+        
+        // Update gold rates
         const { error: ratesError } = await supabase
           .from('gold_rates')
           .update({
-            '24k_rate': parseFloat(goldRate),
-            '22k_rate': parseFloat(goldRate) * 0.916, // 22k is 91.6% pure
-            '18k_rate': parseFloat(goldRate) * 0.75,  // 18k is 75% pure
-            'silver_rate': parseFloat(silverRate)
+            '24k_rate': goldRateNum,
+            '22k_rate': goldRateNum * 0.916, // 22k is 91.6% pure
+            '18k_rate': goldRateNum * 0.75,  // 18k is 75% pure
+            'silver_rate': silverRateNum
           })
           .eq('id', 1); // Assuming we always update the first row
 
@@ -53,11 +58,11 @@ const AdminSettings = () => {
           description: "Gold and silver rates updated successfully",
         });
       } else if (section === 'General') {
-        // Update store profile
+        // Update store profile - explicitly convert phone to string
         const { error: profileError } = await supabase
           .from('profiles')
           .update({
-            phone: storePhone.toString(), // Convert to string explicitly
+            phone: storePhone, // Already a string from state
             address: storeAddress,
           })
           .eq('role', 'admin');
@@ -141,12 +146,12 @@ const AdminSettings = () => {
                   <label htmlFor="storeName" className="block text-sm font-medium text-gray-700 mb-1">
                     Store Name
                   </label>
-                  <input
+                  <Input
                     id="storeName"
                     type="text"
                     value={storeName}
                     onChange={(e) => setStoreName(e.target.value)}
-                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                    className="focus:ring-gold"
                   />
                 </div>
                 
@@ -154,12 +159,12 @@ const AdminSettings = () => {
                   <label htmlFor="storeEmail" className="block text-sm font-medium text-gray-700 mb-1">
                     Store Email
                   </label>
-                  <input
+                  <Input
                     id="storeEmail"
                     type="email"
                     value={storeEmail}
                     onChange={(e) => setStoreEmail(e.target.value)}
-                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                    className="focus:ring-gold"
                   />
                 </div>
                 
@@ -167,12 +172,12 @@ const AdminSettings = () => {
                   <label htmlFor="storePhone" className="block text-sm font-medium text-gray-700 mb-1">
                     Store Phone
                   </label>
-                  <input
+                  <Input
                     id="storePhone"
                     type="tel"
                     value={storePhone}
                     onChange={(e) => setStorePhone(e.target.value)}
-                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                    className="focus:ring-gold"
                   />
                 </div>
                 
@@ -234,12 +239,12 @@ const AdminSettings = () => {
                     <label htmlFor="currencySymbol" className="block text-sm font-medium text-gray-700 mb-1">
                       Currency Symbol
                     </label>
-                    <input
+                    <Input
                       id="currencySymbol"
                       type="text"
                       value={currencySymbol}
                       onChange={(e) => setCurrencySymbol(e.target.value)}
-                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                      className="focus:ring-gold"
                     />
                   </div>
                 </div>
@@ -253,12 +258,12 @@ const AdminSettings = () => {
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
                         {currencySymbol}
                       </span>
-                      <input
+                      <Input
                         id="goldRate"
                         type="text"
                         value={goldRate}
                         onChange={(e) => setGoldRate(e.target.value)}
-                        className="w-full pl-8 pr-4 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                        className="pl-8 focus:ring-gold"
                       />
                     </div>
                   </div>
@@ -271,12 +276,12 @@ const AdminSettings = () => {
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
                         {currencySymbol}
                       </span>
-                      <input
+                      <Input
                         id="silverRate"
                         type="text"
                         value={silverRate}
                         onChange={(e) => setSilverRate(e.target.value)}
-                        className="w-full pl-8 pr-4 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                        className="pl-8 focus:ring-gold"
                       />
                     </div>
                   </div>
@@ -313,12 +318,12 @@ const AdminSettings = () => {
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
                       {currencySymbol}
                     </span>
-                    <input
+                    <Input
                       id="freeShippingMinimum"
                       type="text"
                       value={freeShippingMinimum}
                       onChange={(e) => setFreeShippingMinimum(e.target.value)}
-                      className="w-full pl-8 pr-4 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                      className="pl-8 focus:ring-gold"
                     />
                   </div>
                 </div>
@@ -332,12 +337,12 @@ const AdminSettings = () => {
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
                         {currencySymbol}
                       </span>
-                      <input
+                      <Input
                         id="standardShippingRate"
                         type="text"
                         value={standardShippingRate}
                         onChange={(e) => setStandardShippingRate(e.target.value)}
-                        className="w-full pl-8 pr-4 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                        className="pl-8 focus:ring-gold"
                       />
                     </div>
                   </div>
@@ -350,12 +355,12 @@ const AdminSettings = () => {
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
                         {currencySymbol}
                       </span>
-                      <input
+                      <Input
                         id="expressShippingRate"
                         type="text"
                         value={expressShippingRate}
                         onChange={(e) => setExpressShippingRate(e.target.value)}
-                        className="w-full pl-8 pr-4 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                        className="pl-8 focus:ring-gold"
                       />
                     </div>
                   </div>
@@ -463,10 +468,10 @@ const AdminSettings = () => {
                   <label htmlFor="current-password" className="block text-sm font-medium text-gray-700 mb-1">
                     Current Admin Password
                   </label>
-                  <input
+                  <Input
                     id="current-password"
                     type="password"
-                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                    className="focus:ring-gold"
                     placeholder="Enter current password"
                   />
                 </div>
@@ -475,10 +480,10 @@ const AdminSettings = () => {
                   <label htmlFor="new-password" className="block text-sm font-medium text-gray-700 mb-1">
                     New Admin Password
                   </label>
-                  <input
+                  <Input
                     id="new-password"
                     type="password"
-                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                    className="focus:ring-gold"
                     placeholder="Enter new password"
                   />
                 </div>
@@ -487,10 +492,10 @@ const AdminSettings = () => {
                   <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-1">
                     Confirm New Password
                   </label>
-                  <input
+                  <Input
                     id="confirm-password"
                     type="password"
-                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
+                    className="focus:ring-gold"
                     placeholder="Confirm new password"
                   />
                 </div>

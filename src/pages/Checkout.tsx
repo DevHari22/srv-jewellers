@@ -11,6 +11,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
+// Define clear type for cart items to avoid type issues
+interface CartItem {
+  id: string;
+  name: string;
+  image: string;
+  price: number;
+  quantity: number;
+}
+
 const Checkout = () => {
   const { cartItems, clearCart } = useCart();
   const { session, user } = useAuth();
@@ -32,14 +41,16 @@ const Checkout = () => {
     paymentMethod: "cod" // cash on delivery by default
   });
   
-  // Calculate totals
+  // Calculate totals - ensure proper typing for price
   const subtotal = cartItems.reduce(
     (total, item) => {
-      const itemPrice = typeof item.price === 'number' ? item.price : 0;
-      return total + (itemPrice * item.quantity);
+      // Safely handle item.price - ensure it's a number
+      const price = typeof item.price === 'number' ? item.price : 0;
+      return total + (price * item.quantity);
     },
     0
   );
+  
   const shipping = 0; // Free shipping
   const tax = Math.round(subtotal * 0.03); // 3% tax
   const total = subtotal + shipping + tax;
@@ -93,7 +104,7 @@ const Checkout = () => {
       
       if (orderError) throw orderError;
       
-      // Insert order items
+      // Insert order items - ensure proper typing for price_at_time
       const orderItems = cartItems.map(item => ({
         order_id: orderData.id,
         product_id: item.id,
@@ -161,11 +172,7 @@ const Checkout = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow">
-        {loading && (
-          <div className="fixed inset-0 bg-white/80 z-50">
-            <LoadingSpinner />
-          </div>
-        )}
+        {loading && <LoadingSpinner fullScreen />}
         
         <div className="bg-gray-50 py-3">
           <div className="container">
@@ -346,7 +353,8 @@ const Checkout = () => {
                 
                 <div className="max-h-80 overflow-y-auto mb-4">
                   {cartItems.map(item => {
-                    const itemPrice = typeof item.price === 'number' ? item.price : 0;
+                    // Make sure price is a number before calling toLocaleString
+                    const price = typeof item.price === 'number' ? item.price : 0;
                     
                     return (
                       <div key={item.id} className="flex py-3 border-b last:border-0">
@@ -361,7 +369,7 @@ const Checkout = () => {
                           <h3 className="text-sm font-medium">{item.name}</h3>
                           <p className="text-sm text-gray-500 mt-1">Qty: {item.quantity}</p>
                           <p className="text-sm font-medium text-gray-900 mt-1">
-                            ₹{itemPrice.toLocaleString()}
+                            ₹{price.toLocaleString()}
                           </p>
                         </div>
                       </div>
