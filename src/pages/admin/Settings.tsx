@@ -52,7 +52,7 @@ const AdminSettings = () => {
           description: "Gold and silver rates updated successfully",
         });
       } else if (section === 'General') {
-        // Update store profile
+        // Update store profile - make sure storePhone is passed as a string
         const { error: profileError } = await supabase
           .from('profiles')
           .update({
