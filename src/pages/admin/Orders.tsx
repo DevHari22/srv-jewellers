@@ -1,35 +1,67 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/Layout";
-import { Search, Filter, Eye, Download, Printer } from "lucide-react";
+import { Search, Filter, Eye, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { useToast } from "@/hooks/use-toast";
 
 const AdminOrders = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
   
-  // Sample orders data
-  const orders = [
-    { id: "ORD-4253", customer: "Rahul Sharma", date: "Apr 15, 2025", items: 2, amount: 12450, status: "Delivered" },
-    { id: "ORD-4252", customer: "Priya Patel", date: "Apr 14, 2025", items: 1, amount: 54999, status: "Processing" },
-    { id: "ORD-4251", customer: "Amit Kumar", date: "Apr 14, 2025", items: 3, amount: 22870, status: "Pending" },
-    { id: "ORD-4250", customer: "Neha Singh", date: "Apr 13, 2025", items: 2, amount: 18500, status: "Shipped" },
-    { id: "ORD-4249", customer: "Vikram Reddy", date: "Apr 12, 2025", items: 1, amount: 34760, status: "Delivered" },
-    { id: "ORD-4248", customer: "Meera Joshi", date: "Apr 12, 2025", items: 4, amount: 47250, status: "Processing" },
-    { id: "ORD-4247", customer: "Ananya Gupta", date: "Apr 11, 2025", items: 1, amount: 76500, status: "Cancelled" },
-    { id: "ORD-4246", customer: "Rohit Malhotra", date: "Apr 10, 2025", items: 2, amount: 28900, status: "Delivered" },
-  ];
-  
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          user_id (
+            email
+          ),
+          order_items (
+            quantity,
+            price_at_time,
+            product:product_id (
+              name
+            )
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      setOrders(data || []);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load orders",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Filter orders based on search and status
   const filteredOrders = orders.filter(order => {
     const matchesSearch = 
       order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customer.toLowerCase().includes(searchQuery.toLowerCase());
+      order.shipping_address.toLowerCase().includes(searchQuery.toLowerCase());
     
     if (statusFilter === "all") return matchesSearch;
     return matchesSearch && order.status.toLowerCase() === statusFilter.toLowerCase();
   });
-  
+
   // Status color mappings
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -47,6 +79,16 @@ const AdminOrders = () => {
         return "bg-gray-100 text-gray-800";
     }
   };
+
+  if (loading) {
+    return (
+      <AdminLayout title="Orders">
+        <div className="h-96">
+          <LoadingSpinner />
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout title="Orders">
@@ -103,11 +145,13 @@ const AdminOrders = () => {
             <tbody>
               {filteredOrders.map(order => (
                 <tr key={order.id} className="border-b last:border-0 hover:bg-gray-50">
-                  <td className="py-3 px-4 font-medium">{order.id}</td>
-                  <td className="py-3 px-4">{order.customer}</td>
-                  <td className="py-3 px-4">{order.date}</td>
-                  <td className="py-3 px-4">{order.items}</td>
-                  <td className="py-3 px-4 font-medium">₹{order.amount.toLocaleString()}</td>
+                  <td className="py-3 px-4 font-medium">{order.id.substring(0, 8)}</td>
+                  <td className="py-3 px-4">{order.shipping_address.split(',')[0]}</td>
+                  <td className="py-3 px-4">
+                    {new Date(order.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="py-3 px-4">{order.order_items?.length || 0}</td>
+                  <td className="py-3 px-4 font-medium">₹{order.total_amount.toLocaleString()}</td>
                   <td className="py-3 px-4">
                     <span className={`inline-block px-2 py-1 text-xs rounded-full ${getStatusColor(order.status)}`}>
                       {order.status}
@@ -115,12 +159,9 @@ const AdminOrders = () => {
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex space-x-2">
-                      <button className="p-1 rounded-full hover:bg-gray-100">
+                      <Button variant="ghost" size="sm">
                         <Eye size={18} className="text-blue-500" />
-                      </button>
-                      <button className="p-1 rounded-full hover:bg-gray-100">
-                        <Printer size={18} className="text-green-500" />
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -140,9 +181,6 @@ const AdminOrders = () => {
               </Button>
               <Button variant="outline" size="sm" className="border-gray-300 bg-gold/10">
                 1
-              </Button>
-              <Button variant="outline" size="sm" className="border-gray-300">
-                2
               </Button>
               <Button variant="outline" size="sm" className="border-gray-300">
                 Next

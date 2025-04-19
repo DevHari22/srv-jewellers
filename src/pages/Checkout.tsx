@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronRight, CreditCard, MapPin, Truck, CheckCircle } from "lucide-react";
@@ -9,6 +8,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const Checkout = () => {
   const { cartItems, clearCart } = useCart();
@@ -157,6 +157,12 @@ const Checkout = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow">
+        {loading && (
+          <div className="fixed inset-0 bg-white/80 z-50">
+            <LoadingSpinner />
+          </div>
+        )}
+        
         <div className="bg-gray-50 py-3">
           <div className="container">
             <div className="flex items-center text-sm text-gray-500">
