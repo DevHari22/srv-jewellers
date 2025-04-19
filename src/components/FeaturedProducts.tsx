@@ -2,12 +2,12 @@
 import React from "react";
 import ProductCard from "./ProductCard";
 import { useToast } from "@/hooks/use-toast";
-import { useProducts } from "@/hooks/useProducts";
+import { useFeaturedProductsQuery } from "@/hooks/useProductsQuery";
 import { useCart } from "@/context/CartContext";
-import { toast } from "sonner";
+import LoadingSpinner from "./LoadingSpinner";
 
 const FeaturedProducts = () => {
-  const { featuredProducts, loading } = useProducts();
+  const { data: featuredProducts, isLoading } = useFeaturedProductsQuery();
   const { toast } = useToast();
   const { addToCart } = useCart();
 
@@ -49,17 +49,15 @@ const FeaturedProducts = () => {
           </p>
         </div>
 
-        {loading ? (
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-maroon"></div>
-          </div>
+        {isLoading ? (
+          <LoadingSpinner />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.slice(0, 4).map((product) => (
+            {(featuredProducts || []).slice(0, 4).map((product) => (
               <ProductCard
                 key={product.id}
                 product={{
-                  id: Number(product.id), // Convert string id to number
+                  id: Number(product.id),
                   name: product.name,
                   price: product.price,
                   image: product.image_url,

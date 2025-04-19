@@ -1,44 +1,29 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ChevronRight, Filter, SlidersHorizontal, Heart, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Product, fetchProductsByCategory } from "@/services/productService";
+import { useProductsByCategoryQuery } from "@/hooks/useProductsQuery";
 import { useCart } from "@/context/CartContext";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const ProductCategory = () => {
   const { category } = useParams<{ category: string }>();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: products, isLoading } = useProductsByCategoryQuery(category || '');
   const [sortOrder, setSortOrder] = useState("featured");
   const { toast } = useToast();
   const { addToCart } = useCart();
   
-  useEffect(() => {
-    const loadProducts = async () => {
-      setLoading(true);
-      if (category) {
-        const fetchedProducts = await fetchProductsByCategory(category);
-        setProducts(fetchedProducts);
-      }
-      setLoading(false);
-    };
-    
-    loadProducts();
-  }, [category]);
-  
   // Sort products based on selected sort order
-  const sortedProducts = [...products].sort((a, b) => {
+  const sortedProducts = [...(products || [])].sort((a, b) => {
     switch (sortOrder) {
       case "price-low-high":
-        return a.price - b.price;
+        return (a.price || 0) - (b.price || 0);
       case "price-high-low":
-        return b.price - a.price;
+        return (b.price || 0) - (a.price || 0);
       case "newest":
-        // Use timestamps or default to 0 if created_at doesn't exist
         const aCreatedAt = a.created_at ? new Date(a.created_at).getTime() : 0;
         const bCreatedAt = b.created_at ? new Date(b.created_at).getTime() : 0;
         return bCreatedAt - aCreatedAt;
@@ -53,7 +38,7 @@ const ProductCategory = () => {
     return cat.charAt(0).toUpperCase() + cat.slice(1);
   };
   
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCart = (product: any) => {
     addToCart({
       id: product.id,
       name: product.name,
@@ -70,7 +55,7 @@ const ProductCategory = () => {
     });
   };
   
-  const handleAddToWishlist = (product: Product) => {
+  const handleAddToWishlist = (product: any) => {
     toast({
       title: "Added to Wishlist",
       description: `${product.name} has been added to your wishlist.`,
@@ -123,9 +108,9 @@ const ProductCategory = () => {
             </div>
           </div>
 
-          {loading ? (
+          {isLoading ? (
             <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-maroon"></div>
+              <LoadingSpinner />
             </div>
           ) : sortedProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
