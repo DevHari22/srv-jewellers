@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import AdminLayout from "@/components/admin/Layout";
 import { Save, Globe, DollarSign, Truck, Bell, Lock, Shield } from "lucide-react";
@@ -58,7 +57,7 @@ const AdminSettings = () => {
           description: "Gold and silver rates updated successfully",
         });
       } else if (section === 'General') {
-        // Update store profile - explicitly convert phone to string
+        // Update store profile - handle phone explicitly as string
         const { error: profileError } = await supabase
           .from('profiles')
           .update({
@@ -73,20 +72,11 @@ const AdminSettings = () => {
           title: "Success",
           description: "Store information updated successfully",
         });
-      } else if (section === 'Notification') {
+      } else {
+        // Success messages for other sections
         toast({
           title: "Success",
-          description: "Notification settings saved successfully",
-        });
-      } else if (section === 'Security') {
-        toast({
-          title: "Success",
-          description: "Security settings saved successfully",
-        });
-      } else if (section === 'Shipping') {
-        toast({
-          title: "Success",
-          description: "Shipping settings saved successfully",
+          description: `${section} settings saved successfully`,
         });
       }
     } catch (error: any) {

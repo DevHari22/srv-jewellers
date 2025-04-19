@@ -354,7 +354,7 @@ const Checkout = () => {
                 <div className="max-h-80 overflow-y-auto mb-4">
                   {cartItems.map(item => {
                     // Make sure price is a number before calling toLocaleString
-                    const price = typeof item.price === 'number' ? item.price : 0;
+                    const safePrice = typeof item.price === 'number' ? item.price : 0;
                     
                     return (
                       <div key={item.id} className="flex py-3 border-b last:border-0">
@@ -369,7 +369,7 @@ const Checkout = () => {
                           <h3 className="text-sm font-medium">{item.name}</h3>
                           <p className="text-sm text-gray-500 mt-1">Qty: {item.quantity}</p>
                           <p className="text-sm font-medium text-gray-900 mt-1">
-                            ₹{price.toLocaleString()}
+                            ₹{safePrice.toLocaleString()}
                           </p>
                         </div>
                       </div>
