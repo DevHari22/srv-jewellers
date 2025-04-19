@@ -34,14 +34,14 @@ const AdminSettings = () => {
   const handleSaveSettings = async (section: string) => {
     try {
       if (section === 'Currency') {
-        // Update gold rates
+        // Update gold rates - convert string to number
         const { error: ratesError } = await supabase
           .from('gold_rates')
           .update({
-            '24k_rate': Number(goldRate),
-            '22k_rate': Number(goldRate) * 0.916, // 22k is 91.6% pure
-            '18k_rate': Number(goldRate) * 0.75,  // 18k is 75% pure
-            'silver_rate': Number(silverRate)
+            '24k_rate': parseFloat(goldRate),
+            '22k_rate': parseFloat(goldRate) * 0.916, // 22k is 91.6% pure
+            '18k_rate': parseFloat(goldRate) * 0.75,  // 18k is 75% pure
+            'silver_rate': parseFloat(silverRate)
           })
           .eq('id', 1); // Assuming we always update the first row
 

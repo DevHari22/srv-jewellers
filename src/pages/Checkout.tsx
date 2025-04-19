@@ -33,7 +33,7 @@ const Checkout = () => {
   
   // Calculate totals
   const subtotal = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + (typeof item.price === 'number' ? item.price : 0) * item.quantity,
     0
   );
   const shipping = 0; // Free shipping
@@ -348,7 +348,7 @@ const Checkout = () => {
                         <h3 className="text-sm font-medium">{item.name}</h3>
                         <p className="text-sm text-gray-500 mt-1">Qty: {item.quantity}</p>
                         <p className="text-sm font-medium text-gray-900 mt-1">
-                          ₹{item.price.toLocaleString()}
+                          ₹{typeof item.price === 'number' ? item.price.toLocaleString() : 0}
                         </p>
                       </div>
                     </div>
