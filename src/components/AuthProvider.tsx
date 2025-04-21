@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { toast as sonnerToast } from "sonner";
 
 export type AuthUser = {
@@ -52,47 +52,60 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updateUserState = async (session: Session | null) => {
-    if (session) {
-      const { role, name } = await fetchUserRole(session.user.id);
-      
-      setUser({
-        id: session.user.id,
-        email: session.user.email,
-        role: role
-      });
-      
-      setSession(session);
-      
-      // If user has no name yet but provided one during signup, update the profile
-      if (!name && session.user.user_metadata?.name) {
-        await supabase
-          .from('profiles')
-          .update({ name: session.user.user_metadata.name })
-          .eq('id', session.user.id);
+    try {
+      if (session) {
+        const { role, name } = await fetchUserRole(session.user.id);
+        
+        setUser({
+          id: session.user.id,
+          email: session.user.email,
+          role: role
+        });
+        
+        setSession(session);
+        
+        // If user has no name yet but provided one during signup, update the profile
+        if (!name && session.user.user_metadata?.name) {
+          await supabase
+            .from('profiles')
+            .update({ name: session.user.user_metadata.name })
+            .eq('id', session.user.id);
+        }
+      } else {
+        setUser(null);
+        setSession(null);
       }
-    } else {
-      setUser(null);
-      setSession(null);
+    } catch (error) {
+      console.error("Error updating user state:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
+    console.log("Setting up auth state listener");
+    
     // Set up the auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        await updateUserState(session);
+        console.log("Auth state change event:", event);
         
-        if (event === 'SIGNED_IN') {
-          sonnerToast.success('Signed in successfully!');
-        } else if (event === 'SIGNED_OUT') {
-          sonnerToast.success('Signed out successfully!');
-        }
+        // Use setTimeout to prevent potential deadlocks with Supabase auth
+        setTimeout(async () => {
+          await updateUserState(session);
+          
+          if (event === 'SIGNED_IN') {
+            sonnerToast.success('Signed in successfully!');
+          } else if (event === 'SIGNED_OUT') {
+            sonnerToast.success('Signed out successfully!');
+          }
+        }, 0);
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      console.log("Initial session check:", session ? "Session exists" : "No session");
       await updateUserState(session);
     });
 
@@ -103,16 +116,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log("Attempting sign in for:", email);
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Sign in error:", error);
+        throw error;
+      }
 
-      // Redirect based on role will happen in the useEffect
+      console.log("Sign in successful");
+      // No need to manually redirect here, the onAuthStateChange handler will take care of it
 
     } catch (error: any) {
+      console.error("Sign in exception:", error);
       toast({
         title: "Error signing in",
         description: error.message,

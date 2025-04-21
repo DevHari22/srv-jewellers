@@ -1,16 +1,18 @@
 
 import React, { useEffect } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
 import { LoginForm } from "@/components/auth/LoginForm";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress";
 
 const Login = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   // Handle email verification redirects
@@ -42,6 +44,32 @@ const Login = () => {
       }
     }
   }, [location, toast]);
+
+  // Effect to handle navigation after auth state is confirmed
+  useEffect(() => {
+    if (user && !loading) {
+      navigate("/", { replace: true });
+    }
+  }, [user, loading, navigate]);
+
+  // Show a loading indicator when checking authentication status
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow flex flex-col items-center justify-center bg-gray-50 py-12">
+          <div className="max-w-md w-full p-8 bg-white shadow-lg rounded-lg">
+            <div className="text-center mb-8">
+              <h1 className="text-2xl font-bold">Checking authentication...</h1>
+            </div>
+            <Progress value={75} className="mb-4" />
+            <p className="text-center text-gray-500">Please wait while we verify your session</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   // Redirect if already authenticated
   if (user) {

@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,7 @@ export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -46,7 +47,16 @@ export const LoginForm = () => {
 
   const onSubmit = async (data: FormValues) => {
     try {
+      console.log("Form submitted with email:", data.email);
       await signIn(data.email, data.password);
+      console.log("Sign in function completed");
+      
+      // Redirect is now handled by the AuthProvider, but we can force it here too
+      // for redundancy to ensure the redirect happens
+      setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 1000);
+      
     } catch (error: any) {
       console.error("Login error:", error);
       toast({
