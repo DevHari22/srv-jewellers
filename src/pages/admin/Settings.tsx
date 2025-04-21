@@ -48,8 +48,8 @@ const AdminSettings = () => {
             '18k_rate': goldRateNum * 0.75,  // 18k is 75% pure
             'silver_rate': silverRateNum
           })
-          .eq('id', 1); // Assuming we always update the first row
-
+          .eq('id', '1'); // Converting to string to match expected type
+        
         if (ratesError) throw ratesError;
 
         toast({

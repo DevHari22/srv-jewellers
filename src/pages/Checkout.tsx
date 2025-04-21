@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronRight, CreditCard, MapPin, Truck, CheckCircle } from "lucide-react";
@@ -11,7 +10,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
-// Define clear type for cart items to avoid type issues
 interface CartItem {
   id: string;
   name: string;
@@ -41,10 +39,8 @@ const Checkout = () => {
     paymentMethod: "cod" // cash on delivery by default
   });
   
-  // Calculate totals - ensure proper typing for price
   const subtotal = cartItems.reduce(
     (total, item) => {
-      // Safely handle item.price - ensure it's a number
       const price = typeof item.price === 'number' ? item.price : 0;
       return total + (price * item.quantity);
     },
@@ -85,10 +81,8 @@ const Checkout = () => {
     setLoading(true);
     
     try {
-      // Create shipping address string
       const shippingAddress = `${formData.name}, ${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}, Phone: ${formData.phone}`;
       
-      // Insert order into database
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
         .insert([
@@ -104,7 +98,6 @@ const Checkout = () => {
       
       if (orderError) throw orderError;
       
-      // Insert order items - ensure proper typing for price_at_time
       const orderItems = cartItems.map(item => ({
         order_id: orderData.id,
         product_id: item.id,
@@ -118,7 +111,6 @@ const Checkout = () => {
       
       if (itemsError) throw itemsError;
       
-      // Clear cart and show success
       clearCart();
       setOrderId(orderData.id);
       setOrderSuccess(true);
@@ -353,7 +345,6 @@ const Checkout = () => {
                 
                 <div className="max-h-80 overflow-y-auto mb-4">
                   {cartItems.map(item => {
-                    // Make sure price is a number before calling toLocaleString
                     const safePrice = typeof item.price === 'number' ? item.price : 0;
                     
                     return (
