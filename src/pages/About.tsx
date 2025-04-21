@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -46,19 +45,20 @@ const AboutPage = () => {
               <div>
                 <h2 className="text-3xl font-serif font-bold mb-6 text-gold-gradient">Our Heritage</h2>
                 <p className="text-gray-700 mb-4">
-                  Founded by Shri Ramesh Verma in 1985, SRV JEWELLERS began as a small family-owned shop in Chandni Chowk, 
-                  the historic jewelry market of Delhi. With an unwavering commitment to quality and authenticity, the 
-                  business quickly gained popularity among discerning customers.
+                  Founded in 1935, SRV JEWELLERS represents five generations of master jewelers, with our current leader 
+                  Mr. Rajasekaran bringing over 35 years of expertise in handcrafting exquisite jewelry. Our legacy 
+                  of traditional craftsmanship has been passed down through generations, making us one of the most 
+                  trusted names in Indian jewelry.
                 </p>
                 <p className="text-gray-700 mb-4">
-                  Over three generations, we have preserved the art of traditional jewelry making while embracing modern 
-                  techniques and designs. Our master craftsmen, many of whom have been with us for decades, bring 
-                  hundreds of years of collective expertise to every piece we create.
+                  Mr. Rajasekaran, a fifth-generation jeweler, has personally trained numerous artisans in the 
+                  ancient techniques of handcrafting jewelry. His dedication to preserving these traditional methods 
+                  while embracing modern designs has made SRV JEWELLERS a benchmark for quality in the industry.
                 </p>
                 <p className="text-gray-700">
-                  Today, SRV JEWELLERS stands as a testament to excellence in Indian jewelry, offering a diverse 
-                  collection that ranges from wedding and bridal jewelry to everyday wear, all crafted with the 
-                  same dedication to quality that has defined our legacy.
+                  Today, under Mr. Rajasekaran's leadership, SRV JEWELLERS continues to create masterpieces that 
+                  blend centuries-old craftsmanship with contemporary aesthetics, ensuring each piece tells a story 
+                  of heritage and excellence.
                 </p>
               </div>
               <div className="rounded-lg overflow-hidden shadow-lg h-96">
@@ -147,14 +147,14 @@ const AboutPage = () => {
                 <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4">
                   <img 
                     src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                    alt="Sunil Verma" 
+                    alt="Mr. Rajasekaran" 
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <h3 className="text-xl font-serif font-semibold mb-1">Sunil Verma</h3>
-                <p className="text-gold mb-3">CEO & Master Jeweler</p>
+                <h3 className="text-xl font-serif font-semibold mb-1">Mr. Rajasekaran</h3>
+                <p className="text-gold mb-3">Founder & Master Craftsman</p>
                 <p className="text-gray-600">
-                  Third-generation jeweler with over 25 years of experience in the industry.
+                  Fifth-generation jeweler with over 35 years of expertise in traditional handcrafted jewelry.
                 </p>
               </div>
 
@@ -162,14 +162,14 @@ const AboutPage = () => {
                 <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4">
                   <img 
                     src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                    alt="Priya Verma" 
+                    alt="Priya Rajasekaran" 
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <h3 className="text-xl font-serif font-semibold mb-1">Priya Verma</h3>
+                <h3 className="text-xl font-serif font-semibold mb-1">Priya Rajasekaran</h3>
                 <p className="text-gold mb-3">Creative Director</p>
                 <p className="text-gray-600">
-                  Award-winning designer bringing contemporary vision to traditional jewelry.
+                  Leading our design innovation while preserving traditional aesthetics.
                 </p>
               </div>
 
@@ -177,14 +177,14 @@ const AboutPage = () => {
                 <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4">
                   <img 
                     src="https://images.unsplash.com/photo-1566753323558-f4e0952af115?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                    alt="Rajesh Kumar" 
+                    alt="Ramesh Kumar" 
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <h3 className="text-xl font-serif font-semibold mb-1">Rajesh Kumar</h3>
-                <p className="text-gold mb-3">Master Craftsman</p>
+                <h3 className="text-xl font-serif font-semibold mb-1">Ramesh Kumar</h3>
+                <p className="text-gold mb-3">Senior Craftsman</p>
                 <p className="text-gray-600">
-                  With 40 years of experience, Rajesh leads our team of skilled artisans.
+                  Expert in traditional techniques with 25 years of experience.
                 </p>
               </div>
             </div>

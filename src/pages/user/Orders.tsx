@@ -1,63 +1,86 @@
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ChevronRight, Search, Eye, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { fetchUserOrders, type Order } from "@/services/orderService";
+import { supabase } from "@/integrations/supabase/client";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const UserOrders = () => {
-  // Sample orders data
-  const orders = [
-    {
-      id: "ORD-4253",
-      date: "Apr 15, 2025",
-      status: "Delivered",
-      items: 2,
-      total: 12450,
-      tracking: "IND8765432109",
-    },
-    {
-      id: "ORD-4210",
-      date: "Mar 28, 2025",
-      status: "Processing",
-      items: 1,
-      total: 54999,
-      tracking: "IND7654321098",
-    },
-    {
-      id: "ORD-4185",
-      date: "Mar 12, 2025",
-      status: "Delivered",
-      items: 3,
-      total: 18750,
-      tracking: "IND6543210987",
-    },
-    {
-      id: "ORD-4142",
-      date: "Feb 18, 2025",
-      status: "Cancelled",
-      items: 1,
-      total: 8999,
-      tracking: null,
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadOrders();
+    
+    // Subscribe to realtime updates for orders
+    const channel = supabase
+      .channel('public:orders')
+      .on('postgres_changes', 
+        { 
+          event: 'UPDATE', 
+          schema: 'public', 
+          table: 'orders' 
+        },
+        (payload: any) => {
+          // Update the order in the local state when it changes
+          setOrders(currentOrders => 
+            currentOrders.map(order => 
+              order.id === payload.new.id 
+                ? { ...order, ...payload.new }
+                : order
+            )
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const loadOrders = async () => {
+    try {
+      setLoading(true);
+      const fetchedOrders = await fetchUserOrders();
+      setOrders(fetchedOrders);
+    } catch (error) {
+      console.error('Error loading orders:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
-  
+  };
+
   // Status color mappings
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Delivered":
+    switch (status.toLowerCase()) {
+      case "delivered":
         return "bg-green-100 text-green-800";
-      case "Processing":
+      case "processing":
         return "bg-blue-100 text-blue-800";
-      case "Shipped":
+      case "shipped":
         return "bg-purple-100 text-purple-800";
-      case "Cancelled":
+      case "cancelled":
         return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow flex items-center justify-center">
+          <LoadingSpinner />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -101,7 +124,6 @@ const UserOrders = () => {
                       <th className="text-left py-3 px-4 font-medium text-gray-500">Order ID</th>
                       <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
                       <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Items</th>
                       <th className="text-left py-3 px-4 font-medium text-gray-500">Total</th>
                       <th className="text-left py-3 px-4 font-medium text-gray-500">Action</th>
                     </tr>
@@ -110,14 +132,15 @@ const UserOrders = () => {
                     {orders.map(order => (
                       <tr key={order.id} className="border-b last:border-0 hover:bg-gray-50">
                         <td className="py-3 px-4 font-medium">{order.id}</td>
-                        <td className="py-3 px-4">{order.date}</td>
+                        <td className="py-3 px-4">
+                          {new Date(order.created_at).toLocaleDateString()}
+                        </td>
                         <td className="py-3 px-4">
                           <span className={`inline-block px-2 py-1 text-xs rounded-full ${getStatusColor(order.status)}`}>
                             {order.status}
                           </span>
                         </td>
-                        <td className="py-3 px-4">{order.items}</td>
-                        <td className="py-3 px-4 font-medium">₹{order.total.toLocaleString()}</td>
+                        <td className="py-3 px-4 font-medium">₹{order.total_amount.toLocaleString()}</td>
                         <td className="py-3 px-4">
                           <Button variant="outline" size="sm" className="border-gray-300" asChild>
                             <Link to={`/orders/${order.id}`}>
