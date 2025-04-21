@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
   ShoppingCart, 
@@ -13,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/AuthProvider";
 import { useCart } from "@/context/CartContext";
+import { fetchSiteSettings, SiteSettings } from "@/services/settingsService";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,6 +22,18 @@ const Navbar = () => {
   const { user, signOut } = useAuth();
   const { cartItems } = useCart();
   const cartItemCount = cartItems.length;
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
+  
+  useEffect(() => {
+    const getSettings = async () => {
+      const siteSettings = await fetchSiteSettings();
+      if (siteSettings) {
+        setSettings(siteSettings);
+      }
+    };
+    
+    getSettings();
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -43,10 +57,12 @@ const Navbar = () => {
         <div className="container flex justify-between items-center">
           <div>
             <span className="font-medium">Today's Gold Rate:</span>{" "}
-            <span className="text-gold-light">₹5,487/gram</span>
+            <span className="text-gold-light">
+              ₹{settings?.gold_rate?.toLocaleString() || "5,487"}/gram
+            </span>
           </div>
           <div className="hidden md:block">
-            <span>Call Us: +91 98765 43210</span>
+            <span>Call Us: {settings?.phone || "+91 98765 43210"}</span>
           </div>
         </div>
       </div>
@@ -56,7 +72,7 @@ const Navbar = () => {
         <div className="container flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="font-serif text-2xl md:text-3xl font-bold bg-gradient-to-r from-maroon via-gold to-maroon bg-clip-text text-transparent">
-            SRV JEWELLERS
+            {settings?.company_name || "SRV JEWELLERS"}
           </Link>
 
           {/* Desktop Navigation */}

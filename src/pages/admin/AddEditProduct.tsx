@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/Layout";
@@ -8,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { createProduct, updateProduct, fetchProductById } from "@/services/productService";
+import { uploadFile } from "@/services/storageService";
 
 const AddEditProduct = () => {
   const { id } = useParams();
@@ -31,7 +33,7 @@ const AddEditProduct = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isEditMode && id) {
       setLoading(true);
       fetchProductById(id).then((data) => {
@@ -75,11 +77,12 @@ const AddEditProduct = () => {
       const file = e.target.files[0];
       setImageFile(file);
       
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      // Create a temporary object URL for preview
+      const objectUrl = URL.createObjectURL(file);
+      setImagePreview(objectUrl);
+      
+      // Clean up the URL when component unmounts
+      return () => URL.revokeObjectURL(objectUrl);
     }
   };
 
@@ -92,19 +95,14 @@ const AddEditProduct = () => {
       const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
       const filePath = `products/${fileName}`;
       
-      const { error: uploadError } = await supabase.storage
-        .from('products')
-        .upload(filePath, imageFile);
+      // Use the storageService to handle upload
+      const imageUrl = await uploadFile('products', imageFile, filePath);
       
-      if (uploadError) {
-        throw uploadError;
+      if (!imageUrl) {
+        throw new Error('Failed to upload image');
       }
       
-      const { data } = supabase.storage
-        .from('products')
-        .getPublicUrl(filePath);
-      
-      return data.publicUrl;
+      return imageUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
       toast({

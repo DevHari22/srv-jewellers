@@ -1,39 +1,127 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Trash2, ShoppingCart, Heart, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/components/AuthProvider";
+import { useCart } from "@/context/CartContext";
+import { supabase } from "@/integrations/supabase/client";
+
+interface WishlistItem {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  inStock: boolean;
+}
 
 const Wishlist = () => {
-  // Sample wishlist data
-  const [wishlistItems, setWishlistItems] = useState([
-    {
-      id: 1,
-      name: "22K Gold Traditional Necklace",
-      price: 72999,
-      image: "https://images.unsplash.com/photo-1608042314453-ae338d80c427?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      inStock: true
-    },
-    {
-      id: 2,
-      name: "Diamond Stud Earrings",
-      price: 25999,
-      image: "https://images.unsplash.com/photo-1588444650733-d636f6927858?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      inStock: true
-    },
-    {
-      id: 3,
-      name: "Gold Bangle Set",
-      price: 54999,
-      image: "https://images.unsplash.com/photo-1601821765780-754fa98637c1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      inStock: false
-    }
-  ]);
+  const { user } = useAuth();
+  const { addToCart } = useCart();
+  const { toast } = useToast();
+  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+  const [loading, setLoading] = useState(true);
   
-  const removeItem = (id: number) => {
-    setWishlistItems(prevItems => prevItems.filter(item => item.id !== id));
+  useEffect(() => {
+    fetchWishlistItems();
+  }, [user]);
+  
+  const fetchWishlistItems = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      
+      // Fetch user's wishlist items with product details
+      const { data, error } = await supabase
+        .from('wishlists')
+        .select(`
+          id,
+          products:product_id (
+            id,
+            name,
+            price,
+            image_url,
+            stock
+          )
+        `)
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      // Transform the data to match the expected format
+      const formattedItems = data.map(item => ({
+        id: item.products.id,
+        name: item.products.name,
+        price: item.products.price,
+        image: item.products.image_url,
+        inStock: item.products.stock > 0,
+        wishlistId: item.id
+      }));
+      
+      setWishlistItems(formattedItems);
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load your wishlist",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const removeItem = async (id: number) => {
+    if (!user) return;
+    
+    const itemToRemove = wishlistItems.find(item => item.id === id);
+    
+    if (!itemToRemove) return;
+    
+    try {
+      const { error } = await supabase
+        .from('wishlists')
+        .delete()
+        .eq('id', itemToRemove.wishlistId);
+      
+      if (error) throw error;
+      
+      setWishlistItems(prevItems => prevItems.filter(item => item.id !== id));
+      
+      toast({
+        title: "Item Removed",
+        description: "Item has been removed from your wishlist",
+      });
+    } catch (error) {
+      console.error("Error removing item:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove item from wishlist",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const handleAddToCart = (item: WishlistItem) => {
+    addToCart({
+      id: item.id.toString(),
+      name: item.name,
+      price: item.price,
+      image: item.image,
+      quantity: 1
+    });
+    
+    toast({
+      title: "Added to Cart",
+      description: `${item.name} has been added to your cart`,
+    });
   };
 
   return (
@@ -54,7 +142,11 @@ const Wishlist = () => {
         <div className="container py-12">
           <h1 className="text-3xl font-serif font-bold text-gray-900 mb-8">Your Wishlist</h1>
 
-          {wishlistItems.length > 0 ? (
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-maroon"></div>
+            </div>
+          ) : wishlistItems.length > 0 ? (
             <div className="grid grid-cols-1 gap-8">
               {wishlistItems.map(item => (
                 <div key={item.id} className="flex flex-col sm:flex-row items-center sm:items-start bg-white p-6 border rounded-lg">
@@ -84,6 +176,7 @@ const Wishlist = () => {
                     <Button 
                       className="bg-maroon hover:bg-maroon-dark text-white w-full sm:w-auto"
                       disabled={!item.inStock}
+                      onClick={() => handleAddToCart(item)}
                     >
                       <ShoppingCart size={18} className="mr-2" />
                       Add to Cart
