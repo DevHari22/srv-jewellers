@@ -31,7 +31,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const { signIn, loading: authLoading } = useAuth();
+  const { signIn } = useAuth();
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
@@ -42,17 +42,16 @@ export const LoginForm = () => {
     },
   });
 
-  const isLoading = form.formState.isSubmitting || authLoading;
+  const isLoading = form.formState.isSubmitting;
 
   const onSubmit = async (data: FormValues) => {
     try {
       await signIn(data.email, data.password);
-      // No need to show success message here as it will be handled in AuthProvider
     } catch (error: any) {
       console.error("Login error:", error);
       toast({
         title: "Error signing in",
-        description: error.message || "Failed to sign in. Please try again.",
+        description: error.message,
         variant: "destructive",
       });
     }
