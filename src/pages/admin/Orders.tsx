@@ -1,17 +1,31 @@
 
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/Layout";
-import { Search, Filter, Eye, Download } from "lucide-react";
+import { Search, Filter, Eye, Download, CheckCircle, Clock, Truck, PackageX } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  fetchAllOrders, 
+  updateOrderStatus, 
+  type Order 
+} from "@/services/orderService";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Link } from "react-router-dom";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const AdminOrders = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [openDialog, setOpenDialog] = useState(false);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -20,26 +34,9 @@ const AdminOrders = () => {
 
   const fetchOrders = async () => {
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          user_id (
-            email
-          ),
-          order_items (
-            quantity,
-            price_at_time,
-            product:product_id (
-              name
-            )
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      
-      setOrders(data || []);
+      setLoading(true);
+      const fetchedOrders = await fetchAllOrders();
+      setOrders(fetchedOrders);
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast({
@@ -52,11 +49,42 @@ const AdminOrders = () => {
     }
   };
 
+  // Handle status change
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    try {
+      const success = await updateOrderStatus(orderId, newStatus);
+      if (success) {
+        // Update local state to reflect the change
+        setOrders(orders.map(order => 
+          order.id === orderId ? { ...order, status: newStatus } : order
+        ));
+        
+        toast({
+          title: "Status Updated",
+          description: `Order status changed to ${newStatus}`,
+        });
+      }
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update order status",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // View order details
+  const handleViewOrder = (order: Order) => {
+    setSelectedOrder(order);
+    setOpenDialog(true);
+  };
+
   // Filter orders based on search and status
   const filteredOrders = orders.filter(order => {
     const matchesSearch = 
       order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.shipping_address.toLowerCase().includes(searchQuery.toLowerCase());
+      (order.shipping_address && order.shipping_address.toLowerCase().includes(searchQuery.toLowerCase()));
     
     if (statusFilter === "all") return matchesSearch;
     return matchesSearch && order.status.toLowerCase() === statusFilter.toLowerCase();
@@ -64,19 +92,35 @@ const AdminOrders = () => {
 
   // Status color mappings
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Delivered":
+    switch (status.toLowerCase()) {
+      case "delivered":
         return "bg-green-100 text-green-800";
-      case "Processing":
+      case "processing":
         return "bg-blue-100 text-blue-800";
-      case "Shipped":
+      case "shipped":
         return "bg-purple-100 text-purple-800";
-      case "Pending":
+      case "pending":
         return "bg-yellow-100 text-yellow-800";
-      case "Cancelled":
+      case "cancelled":
         return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  // Status icon mapping
+  const getStatusIcon = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "delivered":
+        return <CheckCircle className="w-4 h-4 mr-1" />;
+      case "processing":
+        return <Clock className="w-4 h-4 mr-1" />;
+      case "shipped":
+        return <Truck className="w-4 h-4 mr-1" />;
+      case "cancelled":
+        return <PackageX className="w-4 h-4 mr-1" />;
+      default:
+        return <Clock className="w-4 h-4 mr-1" />;
     }
   };
 
@@ -136,36 +180,73 @@ const AdminOrders = () => {
                 <th className="text-left py-3 px-4 font-medium text-gray-500">Order ID</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-500">Customer</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-500">Items</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-500">Amount</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-500">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.map(order => (
-                <tr key={order.id} className="border-b last:border-0 hover:bg-gray-50">
-                  <td className="py-3 px-4 font-medium">{order.id.substring(0, 8)}</td>
-                  <td className="py-3 px-4">{order.shipping_address.split(',')[0]}</td>
-                  <td className="py-3 px-4">
-                    {new Date(order.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="py-3 px-4">{order.order_items?.length || 0}</td>
-                  <td className="py-3 px-4 font-medium">₹{order.total_amount.toLocaleString()}</td>
-                  <td className="py-3 px-4">
-                    <span className={`inline-block px-2 py-1 text-xs rounded-full ${getStatusColor(order.status)}`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex space-x-2">
-                      <Button variant="ghost" size="sm">
-                        <Eye size={18} className="text-blue-500" />
-                      </Button>
-                    </div>
+              {filteredOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-gray-500">
+                    No orders found
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredOrders.map(order => (
+                  <tr key={order.id} className="border-b last:border-0 hover:bg-gray-50">
+                    <td className="py-3 px-4 font-medium">{order.id.substring(0, 8)}</td>
+                    <td className="py-3 px-4">{order.shipping_address?.split(',')[0] || 'N/A'}</td>
+                    <td className="py-3 px-4">
+                      {new Date(order.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 px-4 font-medium">₹{order.total_amount.toLocaleString()}</td>
+                    <td className="py-3 px-4">
+                      <span className={`inline-flex items-center px-2 py-1 text-xs rounded-full ${getStatusColor(order.status)}`}>
+                        {getStatusIcon(order.status)}
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex space-x-2">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              Update Status
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, "Pending")}>
+                              <Clock className="w-4 h-4 mr-2" />
+                              Pending
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, "Processing")}>
+                              <Clock className="w-4 h-4 mr-2" />
+                              Processing
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, "Shipped")}>
+                              <Truck className="w-4 h-4 mr-2" />
+                              Shipped
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, "Delivered")}>
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              Delivered
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, "Cancelled")}>
+                              <PackageX className="w-4 h-4 mr-2" />
+                              Cancelled
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        
+                        <Button variant="ghost" size="sm" onClick={() => handleViewOrder(order)}>
+                          <Eye size={18} className="text-blue-500" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -189,6 +270,134 @@ const AdminOrders = () => {
           </div>
         </div>
       </div>
+
+      {/* Order Details Dialog */}
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Order Details</DialogTitle>
+          </DialogHeader>
+          
+          {selectedOrder && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">Order ID</h3>
+                  <p>{selectedOrder.id}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">Date</h3>
+                  <p>{new Date(selectedOrder.created_at).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">Status</h3>
+                  <span className={`inline-flex items-center px-2 py-1 text-xs rounded-full ${getStatusColor(selectedOrder.status)}`}>
+                    {getStatusIcon(selectedOrder.status)}
+                    {selectedOrder.status}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">Total Amount</h3>
+                  <p>₹{selectedOrder.total_amount.toLocaleString()}</p>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Shipping Address</h3>
+                <p className="whitespace-pre-line">{selectedOrder.shipping_address}</p>
+              </div>
+              
+              {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 mb-2">Items</h3>
+                  <div className="border rounded-md overflow-hidden">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-gray-50 border-b">
+                          <th className="text-left py-2 px-3 text-xs font-medium text-gray-500">Product</th>
+                          <th className="text-left py-2 px-3 text-xs font-medium text-gray-500">Quantity</th>
+                          <th className="text-left py-2 px-3 text-xs font-medium text-gray-500">Price</th>
+                          <th className="text-left py-2 px-3 text-xs font-medium text-gray-500">Subtotal</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedOrder.items.map((item) => (
+                          <tr key={item.id} className="border-b last:border-0">
+                            <td className="py-2 px-3">{item.product?.name || 'Unknown Product'}</td>
+                            <td className="py-2 px-3">{item.quantity}</td>
+                            <td className="py-2 px-3">₹{item.price_at_time.toLocaleString()}</td>
+                            <td className="py-2 px-3">₹{(item.price_at_time * item.quantity).toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-gray-500">No items available</div>
+              )}
+              
+              <div className="flex justify-between pt-4 border-t">
+                <Button variant="outline" onClick={() => setOpenDialog(false)}>
+                  Close
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button>Update Status</Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        handleStatusChange(selectedOrder.id, "Pending");
+                        setSelectedOrder({...selectedOrder, status: "Pending"});
+                      }}
+                    >
+                      <Clock className="w-4 h-4 mr-2" />
+                      Pending
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        handleStatusChange(selectedOrder.id, "Processing");
+                        setSelectedOrder({...selectedOrder, status: "Processing"});
+                      }}
+                    >
+                      <Clock className="w-4 h-4 mr-2" />
+                      Processing
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        handleStatusChange(selectedOrder.id, "Shipped");
+                        setSelectedOrder({...selectedOrder, status: "Shipped"});
+                      }}
+                    >
+                      <Truck className="w-4 h-4 mr-2" />
+                      Shipped
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        handleStatusChange(selectedOrder.id, "Delivered");
+                        setSelectedOrder({...selectedOrder, status: "Delivered"});
+                      }}
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Delivered
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        handleStatusChange(selectedOrder.id, "Cancelled");
+                        setSelectedOrder({...selectedOrder, status: "Cancelled"});
+                      }}
+                    >
+                      <PackageX className="w-4 h-4 mr-2" />
+                      Cancelled
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };

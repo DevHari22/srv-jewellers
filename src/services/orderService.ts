@@ -127,12 +127,12 @@ export const fetchOrderById = async (id: string): Promise<Order | null> => {
       return null;
     }
     
-    // Get the order items
+    // Get the order items with product details
     const { data: items, error: itemsError } = await supabase
       .from('order_items')
       .select(`
         *,
-        product:product_id (
+        product:products(
           name,
           image_url
         )
@@ -156,15 +156,10 @@ export const fetchOrderById = async (id: string): Promise<Order | null> => {
 // Admin function to fetch all orders
 export const fetchAllOrders = async (): Promise<Order[]> => {
   try {
+    // Get all orders
     const { data, error } = await supabase
       .from('orders')
-      .select(`
-        *,
-        profile:user_id (
-          name,
-          email
-        )
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
     
     if (error) {
@@ -173,7 +168,28 @@ export const fetchAllOrders = async (): Promise<Order[]> => {
       return [];
     }
     
-    return data || [];
+    // For each order, get its items
+    const ordersWithItems = await Promise.all(data.map(async (order) => {
+      const { data: items, error: itemsError } = await supabase
+        .from('order_items')
+        .select(`
+          *,
+          product:products(
+            name,
+            image_url
+          )
+        `)
+        .eq('order_id', order.id);
+      
+      if (itemsError) {
+        console.error('Error fetching order items:', itemsError);
+        return order;
+      }
+      
+      return { ...order, items: items || [] };
+    }));
+    
+    return ordersWithItems;
   } catch (error) {
     console.error('Error fetching all orders:', error);
     toast.error('Failed to load orders');
