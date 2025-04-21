@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { createClient } from "@supabase/supabase-js";
 
 const userSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -49,28 +49,48 @@ const AddEditUser = () => {
     setLoading(true);
     
     try {
-      // Generate a UUID for the new user
-      const userId = crypto.randomUUID();
+      // Generate a random password
+      const tempPassword = Math.random().toString(36).slice(-8);
       
-      // Add the user to the profiles table
-      const { data: profileData, error: profileError } = await supabase
+      // Create the user in Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+        email: data.email,
+        password: tempPassword,
+        email_confirm: true,
+        user_metadata: {
+          name: data.name,
+          phone: data.phone,
+          role: data.role
+        }
+      });
+
+      if (authError) throw authError;
+
+      // Send password reset email
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+        data.email,
+        { redirectTo: `${window.location.origin}/reset-password` }
+      );
+
+      if (resetError) throw resetError;
+
+      // Add user profile data
+      const { error: profileError } = await supabase
         .from('profiles')
         .insert({
-          id: userId, // Include the id field
+          id: authData.user.id,
           name: data.name,
           email: data.email,
-          phone: data.phone || null,
-          address: data.address || null,
-          role: data.role,
+          phone: data.phone,
+          address: data.address,
+          role: data.role
         });
-      
-      if (profileError) {
-        throw profileError;
-      }
+
+      if (profileError) throw profileError;
       
       toast({
         title: "Success",
-        description: "User has been created successfully",
+        description: "User has been created and notifications sent",
       });
       
       navigate('/admin/users');

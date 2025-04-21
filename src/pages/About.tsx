@@ -135,16 +135,15 @@ const AboutPage = () => {
         <section className="py-16 bg-white">
           <div className="container">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-serif font-bold mb-4 text-gold-gradient">Our Team</h2>
+              <h2 className="text-3xl font-serif font-bold mb-4 text-gold-gradient">Our Expert</h2>
               <p className="text-gray-700 max-w-2xl mx-auto">
-                Meet the passionate individuals who bring our vision to life through their 
-                craftsmanship, expertise, and dedication.
+                Meet the master craftsman behind our exquisite jewelry creations.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="max-w-md mx-auto">
               <div className="bg-white p-6 rounded-lg shadow-md text-center">
-                <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4">
+                <div className="w-32 h-32 rounded-full overflow-hidden mx-auto mb-4">
                   <img 
                     src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
                     alt="Mr. Rajasekaran" 
@@ -154,37 +153,7 @@ const AboutPage = () => {
                 <h3 className="text-xl font-serif font-semibold mb-1">Mr. Rajasekaran</h3>
                 <p className="text-gold mb-3">Founder & Master Craftsman</p>
                 <p className="text-gray-600">
-                  Fifth-generation jeweler with over 35 years of expertise in traditional handcrafted jewelry.
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg shadow-md text-center">
-                <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4">
-                  <img 
-                    src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                    alt="Priya Rajasekaran" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 className="text-xl font-serif font-semibold mb-1">Priya Rajasekaran</h3>
-                <p className="text-gold mb-3">Creative Director</p>
-                <p className="text-gray-600">
-                  Leading our design innovation while preserving traditional aesthetics.
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg shadow-md text-center">
-                <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4">
-                  <img 
-                    src="https://images.unsplash.com/photo-1566753323558-f4e0952af115?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                    alt="Ramesh Kumar" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 className="text-xl font-serif font-semibold mb-1">Ramesh Kumar</h3>
-                <p className="text-gold mb-3">Senior Craftsman</p>
-                <p className="text-gray-600">
-                  Expert in traditional techniques with 25 years of experience.
+                  A fifth-generation jeweler with over 35 years of expertise in traditional handcrafted jewelry. His dedication to preserving ancient techniques while embracing contemporary designs has made him a respected figure in the industry.
                 </p>
               </div>
             </div>

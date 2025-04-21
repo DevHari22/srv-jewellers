@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,7 +31,6 @@ const AddEditProduct = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  // Fetch product data if in edit mode
   React.useEffect(() => {
     if (isEditMode && id) {
       setLoading(true);
@@ -72,12 +70,11 @@ const AddEditProduct = () => {
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setImageFile(file);
       
-      // Create a preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -91,12 +88,10 @@ const AddEditProduct = () => {
     
     setUploading(true);
     try {
-      // Create a unique file path
       const fileExt = imageFile.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
       const filePath = `products/${fileName}`;
       
-      // Upload the file
       const { error: uploadError } = await supabase.storage
         .from('products')
         .upload(filePath, imageFile);
@@ -105,7 +100,6 @@ const AddEditProduct = () => {
         throw uploadError;
       }
       
-      // Get the public URL
       const { data } = supabase.storage
         .from('products')
         .getPublicUrl(filePath);
@@ -129,9 +123,8 @@ const AddEditProduct = () => {
     setLoading(true);
     
     try {
-      // Upload image if there's a new one
       const imageUrl = await uploadImage();
-      if (uploading) return; // If still uploading, don't proceed
+      if (uploading) return;
       
       const productData = {
         ...product,

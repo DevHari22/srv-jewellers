@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { 
@@ -13,11 +12,14 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/AuthProvider";
+import { useCart } from "@/components/CartProvider";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { user, signOut } = useAuth();
+  const { cartItems } = useCart();
+  const cartItemCount = cartItems.length;
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -97,11 +99,13 @@ const Navbar = () => {
               <Link to="/wishlist" className="hover:text-gold">
                 <Heart size={24} />
               </Link>
-              <Link to="/cart" className="hover:text-gold relative">
+              <Link to="/cart" className="relative">
                 <ShoppingCart size={24} />
-                <span className="absolute -top-2 -right-2 bg-maroon text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  2
-                </span>
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-maroon text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartItemCount}
+                  </span>
+                )}
               </Link>
               {user ? (
                 <div className="relative group hidden md:block">
