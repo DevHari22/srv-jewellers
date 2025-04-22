@@ -11,11 +11,12 @@ import { useCart } from "@/context/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 
 interface WishlistItem {
-  id: number;
+  id: string;
   name: string;
   price: number;
   image: string;
   inStock: boolean;
+  wishlistId: string;
 }
 
 const Wishlist = () => {
@@ -37,12 +38,11 @@ const Wishlist = () => {
     
     try {
       setLoading(true);
-      
-      // Fetch user's wishlist items with product details
-      const { data, error } = await supabase
+      const { data: wishlistData, error: wishlistError } = await supabase
         .from('wishlists')
         .select(`
           id,
+          product_id,
           products:product_id (
             id,
             name,
@@ -52,18 +52,20 @@ const Wishlist = () => {
           )
         `)
         .eq('user_id', user.id);
-      
-      if (error) throw error;
-      
+
+      if (wishlistError) throw wishlistError;
+
       // Transform the data to match the expected format
-      const formattedItems = data.map(item => ({
-        id: item.products.id,
-        name: item.products.name,
-        price: item.products.price,
-        image: item.products.image_url,
-        inStock: item.products.stock > 0,
-        wishlistId: item.id
-      }));
+      const formattedItems: WishlistItem[] = wishlistData
+        .filter(item => item.products) // Filter out any null products
+        .map(item => ({
+          id: item.products.id,
+          name: item.products.name,
+          price: item.products.price,
+          image: item.products.image_url || '',
+          inStock: item.products.stock > 0,
+          wishlistId: item.id
+        }));
       
       setWishlistItems(formattedItems);
     } catch (error) {

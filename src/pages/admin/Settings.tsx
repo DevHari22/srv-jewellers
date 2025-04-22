@@ -1,82 +1,68 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/Layout";
 import { Save, Globe, DollarSign, Truck, Bell, Lock, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
+import { fetchSiteSettings, SiteSettings } from "@/services/settingsService";
 
 const AdminSettings = () => {
-  // General Settings
-  const [storeName, setStoreName] = useState("SRV JEWELLERS");
-  const [storeEmail, setStoreEmail] = useState("info@srvjewellers.com");
-  const [storePhone, setStorePhone] = useState("+91 98765 43210");
-  const [storeAddress, setStoreAddress] = useState("128, Jewelry Market, Chandni Chowk, Delhi, India - 110006");
-  
-  // Currency Settings
-  const [currency, setCurrency] = useState("INR");
-  const [currencySymbol, setCurrencySymbol] = useState("₹");
-  const [goldRate, setGoldRate] = useState("5487");
-  const [silverRate, setSilverRate] = useState("72");
-  
-  // Shipping Settings
-  const [freeShippingMinimum, setFreeShippingMinimum] = useState("10000");
-  const [standardShippingRate, setStandardShippingRate] = useState("250");
-  const [expressShippingRate, setExpressShippingRate] = useState("500");
-  
-  // Admin Notification Settings
-  const [orderNotifications, setOrderNotifications] = useState(true);
-  const [lowStockNotifications, setLowStockNotifications] = useState(true);
-  const [reviewNotifications, setReviewNotifications] = useState(false);
-  const [customerSignupNotifications, setCustomerSignupNotifications] = useState(false);
+  const [settings, setSettings] = useState<SiteSettings>({
+    id: '1',
+    company_name: 'SRV JEWELLERS',
+    email: 'info@srvjewellers.com',
+    phone: '+91 98765 43210',
+    address: '229 A, Bazzar Street, Namakkal, Tamil Nadu - 637001',
+    gold_rate: 5487,
+    silver_rate: 72
+  });
 
   const { toast } = useToast();
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      const siteSettings = await fetchSiteSettings();
+      if (siteSettings) {
+        setSettings(siteSettings);
+      }
+    };
+    loadSettings();
+  }, []);
   
   const handleSaveSettings = async (section: string) => {
     try {
-      if (section === 'Currency') {
-        // Parse string inputs to numbers for the database
-        const goldRateNum = parseFloat(goldRate);
-        const silverRateNum = parseFloat(silverRate);
-        
-        // Update gold rates
-        const { error: ratesError } = await supabase
-          .from('gold_rates')
+      if (section === 'General') {
+        const { error } = await supabase
+          .from('site_settings')
           .update({
-            '24k_rate': goldRateNum,
-            '22k_rate': goldRateNum * 0.916, // 22k is 91.6% pure
-            '18k_rate': goldRateNum * 0.75,  // 18k is 75% pure
-            'silver_rate': silverRateNum
+            company_name: settings.company_name,
+            address: settings.address,
+            phone: settings.phone,
+            email: settings.email
           })
-          .eq('id', '1'); // Converting to string to match expected type
-        
-        if (ratesError) throw ratesError;
+          .eq('id', '1');
 
-        toast({
-          title: "Success",
-          description: "Gold and silver rates updated successfully",
-        });
-      } else if (section === 'General') {
-        // Update store profile - handle phone explicitly as string
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
-            phone: storePhone, // Already a string from state
-            address: storeAddress,
-          })
-          .eq('role', 'admin');
-
-        if (profileError) throw profileError;
+        if (error) throw error;
 
         toast({
           title: "Success",
           description: "Store information updated successfully",
         });
-      } else {
-        // Success messages for other sections
+      } else if (section === 'Currency') {
+        const { error } = await supabase
+          .from('site_settings')
+          .update({
+            gold_rate: settings.gold_rate,
+            silver_rate: settings.silver_rate
+          })
+          .eq('id', '1');
+
+        if (error) throw error;
+
         toast({
           title: "Success",
-          description: `${section} settings saved successfully`,
+          description: "Gold and silver rates updated successfully",
         });
       }
     } catch (error: any) {
@@ -139,8 +125,8 @@ const AdminSettings = () => {
                   <Input
                     id="storeName"
                     type="text"
-                    value={storeName}
-                    onChange={(e) => setStoreName(e.target.value)}
+                    value={settings.company_name}
+                    onChange={(e) => setSettings({...settings, company_name: e.target.value})}
                     className="focus:ring-gold"
                   />
                 </div>
@@ -152,8 +138,8 @@ const AdminSettings = () => {
                   <Input
                     id="storeEmail"
                     type="email"
-                    value={storeEmail}
-                    onChange={(e) => setStoreEmail(e.target.value)}
+                    value={settings.email}
+                    onChange={(e) => setSettings({...settings, email: e.target.value})}
                     className="focus:ring-gold"
                   />
                 </div>
@@ -165,8 +151,8 @@ const AdminSettings = () => {
                   <Input
                     id="storePhone"
                     type="tel"
-                    value={storePhone}
-                    onChange={(e) => setStorePhone(e.target.value)}
+                    value={settings.phone}
+                    onChange={(e) => setSettings({...settings, phone: e.target.value})}
                     className="focus:ring-gold"
                   />
                 </div>
@@ -178,8 +164,8 @@ const AdminSettings = () => {
                   <textarea
                     id="storeAddress"
                     rows={3}
-                    value={storeAddress}
-                    onChange={(e) => setStoreAddress(e.target.value)}
+                    value={settings.address}
+                    onChange={(e) => setSettings({...settings, address: e.target.value})}
                     className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
                   />
                 </div>
@@ -214,14 +200,11 @@ const AdminSettings = () => {
                     </label>
                     <select
                       id="currency"
-                      value={currency}
-                      onChange={(e) => setCurrency(e.target.value)}
+                      value="INR"
+                      disabled
                       className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
                     >
                       <option value="INR">Indian Rupee (INR)</option>
-                      <option value="USD">US Dollar (USD)</option>
-                      <option value="EUR">Euro (EUR)</option>
-                      <option value="GBP">British Pound (GBP)</option>
                     </select>
                   </div>
                   
@@ -232,8 +215,8 @@ const AdminSettings = () => {
                     <Input
                       id="currencySymbol"
                       type="text"
-                      value={currencySymbol}
-                      onChange={(e) => setCurrencySymbol(e.target.value)}
+                      value="₹"
+                      disabled
                       className="focus:ring-gold"
                     />
                   </div>
@@ -246,13 +229,13 @@ const AdminSettings = () => {
                     </label>
                     <div className="relative">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                        {currencySymbol}
+                        ₹
                       </span>
                       <Input
                         id="goldRate"
                         type="text"
-                        value={goldRate}
-                        onChange={(e) => setGoldRate(e.target.value)}
+                        value={settings.gold_rate.toString()}
+                        onChange={(e) => setSettings({...settings, gold_rate: parseFloat(e.target.value)})}
                         className="pl-8 focus:ring-gold"
                       />
                     </div>
@@ -264,13 +247,13 @@ const AdminSettings = () => {
                     </label>
                     <div className="relative">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                        {currencySymbol}
+                        ₹
                       </span>
                       <Input
                         id="silverRate"
                         type="text"
-                        value={silverRate}
-                        onChange={(e) => setSilverRate(e.target.value)}
+                        value={settings.silver_rate.toString()}
+                        onChange={(e) => setSettings({...settings, silver_rate: parseFloat(e.target.value)})}
                         className="pl-8 focus:ring-gold"
                       />
                     </div>
@@ -306,13 +289,13 @@ const AdminSettings = () => {
                   </label>
                   <div className="relative">
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                      {currencySymbol}
+                      ₹
                     </span>
                     <Input
                       id="freeShippingMinimum"
                       type="text"
-                      value={freeShippingMinimum}
-                      onChange={(e) => setFreeShippingMinimum(e.target.value)}
+                      value="10000"
+                      disabled
                       className="pl-8 focus:ring-gold"
                     />
                   </div>
@@ -325,13 +308,13 @@ const AdminSettings = () => {
                     </label>
                     <div className="relative">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                        {currencySymbol}
+                        ₹
                       </span>
                       <Input
                         id="standardShippingRate"
                         type="text"
-                        value={standardShippingRate}
-                        onChange={(e) => setStandardShippingRate(e.target.value)}
+                        value="250"
+                        disabled
                         className="pl-8 focus:ring-gold"
                       />
                     </div>
@@ -343,13 +326,13 @@ const AdminSettings = () => {
                     </label>
                     <div className="relative">
                       <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-                        {currencySymbol}
+                        ₹
                       </span>
                       <Input
                         id="expressShippingRate"
                         type="text"
-                        value={expressShippingRate}
-                        onChange={(e) => setExpressShippingRate(e.target.value)}
+                        value="500"
+                        disabled
                         className="pl-8 focus:ring-gold"
                       />
                     </div>
@@ -383,8 +366,8 @@ const AdminSettings = () => {
                   <input
                     id="orderNotifications"
                     type="checkbox"
-                    checked={orderNotifications}
-                    onChange={(e) => setOrderNotifications(e.target.checked)}
+                    checked={true}
+                    disabled
                     className="h-4 w-4 text-maroon border-gray-300 rounded focus:ring-gold"
                   />
                   <label htmlFor="orderNotifications" className="ml-2 block text-sm text-gray-700">
@@ -396,8 +379,8 @@ const AdminSettings = () => {
                   <input
                     id="lowStockNotifications"
                     type="checkbox"
-                    checked={lowStockNotifications}
-                    onChange={(e) => setLowStockNotifications(e.target.checked)}
+                    checked={true}
+                    disabled
                     className="h-4 w-4 text-maroon border-gray-300 rounded focus:ring-gold"
                   />
                   <label htmlFor="lowStockNotifications" className="ml-2 block text-sm text-gray-700">
@@ -409,8 +392,8 @@ const AdminSettings = () => {
                   <input
                     id="reviewNotifications"
                     type="checkbox"
-                    checked={reviewNotifications}
-                    onChange={(e) => setReviewNotifications(e.target.checked)}
+                    checked={false}
+                    disabled
                     className="h-4 w-4 text-maroon border-gray-300 rounded focus:ring-gold"
                   />
                   <label htmlFor="reviewNotifications" className="ml-2 block text-sm text-gray-700">
@@ -422,8 +405,8 @@ const AdminSettings = () => {
                   <input
                     id="customerSignupNotifications"
                     type="checkbox"
-                    checked={customerSignupNotifications}
-                    onChange={(e) => setCustomerSignupNotifications(e.target.checked)}
+                    checked={false}
+                    disabled
                     className="h-4 w-4 text-maroon border-gray-300 rounded focus:ring-gold"
                   />
                   <label htmlFor="customerSignupNotifications" className="ml-2 block text-sm text-gray-700">

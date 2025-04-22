@@ -192,6 +192,77 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          address: string
+          company_name: string
+          email: string
+          facebook_url: string | null
+          gold_rate: number
+          id: string
+          instagram_url: string | null
+          phone: string
+          silver_rate: number
+          twitter_url: string | null
+          youtube_url: string | null
+        }
+        Insert: {
+          address: string
+          company_name: string
+          email: string
+          facebook_url?: string | null
+          gold_rate?: number
+          id: string
+          instagram_url?: string | null
+          phone: string
+          silver_rate?: number
+          twitter_url?: string | null
+          youtube_url?: string | null
+        }
+        Update: {
+          address?: string
+          company_name?: string
+          email?: string
+          facebook_url?: string | null
+          gold_rate?: number
+          id?: string
+          instagram_url?: string | null
+          phone?: string
+          silver_rate?: number
+          twitter_url?: string | null
+          youtube_url?: string | null
+        }
+        Relationships: []
+      }
+      wishlists: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wishlists_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
