@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,6 +21,7 @@ import Wishlist from "@/pages/Wishlist";
 import ProductDetail from "@/pages/ProductDetail";
 import ProductCategory from "@/pages/ProductCategory";
 import NotFound from "@/pages/NotFound";
+import Collections from "@/pages/Collections";
 
 // User account pages
 import UserAccount from "@/pages/user/Account";
@@ -82,6 +82,7 @@ const App = () => {
                 <Route path="/admin/settings" element={<ProtectedRoute adminOnly><AdminSettings /></ProtectedRoute>} />
                 
                 {/* Catch-all route */}
+                <Route path="/collections" element={<Collections />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </CartProvider>

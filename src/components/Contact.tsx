@@ -181,7 +181,6 @@ const Contact = () => {
                 )}
               </div>
               
-              
               <div className="h-96 lg:h-auto">
                 <iframe 
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3912.8087928666396!2d78.16469661478558!3d11.227728992009284!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3babe1ba07b5002f%3A0xf434d3800d817d0c!2sBazaar%20St%2C%20Namakkal%2C%20Tamil%20Nadu%20637001!5e0!3m2!1sen!2sin!4v1650364787!5m2!1sen!2sin" 
@@ -191,7 +190,7 @@ const Contact = () => {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="SRV Jewellers Location"
+                  title="SRV Jewellers Namakkal Location"
                 ></iframe>
               </div>
             </div>

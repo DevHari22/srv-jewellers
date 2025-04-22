@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -16,7 +15,6 @@ const Contact = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would send the form data to a server
     console.log("Form submitted:", { name, email, phone, subject, message });
     setSubmitted(true);
   };
@@ -25,7 +23,6 @@ const Contact = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow">
-        {/* Breadcrumb */}
         <div className="bg-gray-50 py-3">
           <div className="container">
             <div className="flex items-center text-sm text-gray-500">
@@ -81,10 +78,10 @@ const Contact = () => {
                 Come to our store to see our collections
               </p>
               <p className="text-lg font-medium text-maroon">
-                128, Jewelry Market, Chandni Chowk
+                229 A, Bazzar Street, Namakkal
               </p>
               <p className="text-sm text-gray-500 mt-2">
-                Delhi, India - 110006
+                Tamil Nadu - 637001
               </p>
             </div>
           </div>
@@ -184,14 +181,14 @@ const Contact = () => {
               
               <div className="h-96 lg:h-auto">
                 <iframe 
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3501.2299708053725!2d77.2292196!3d28.650163699999997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd0683919c3b%3A0xf5c1f73346b4e204!2sChandni%20Chowk%2C%20New%20Delhi%2C%20Delhi%20110006!5e0!3m2!1sen!2sin!4v1650364787!5m2!1sen!2sin" 
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3912.8087928666396!2d78.16469661478558!3d11.227728992009284!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3babe1ba07b5002f%3A0xf434d3800d817d0c!2sBazaar%20St%2C%20Namakkal%2C%20Tamil%20Nadu%20637001!5e0!3m2!1sen!2sin!4v1650364787!5m2!1sen!2sin" 
                   width="100%" 
                   height="100%" 
                   style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="SRV Jewellers Location"
+                  title="SRV Jewellers Namakkal Location"
                 ></iframe>
               </div>
             </div>
