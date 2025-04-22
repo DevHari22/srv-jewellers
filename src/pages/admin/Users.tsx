@@ -36,7 +36,8 @@ const AdminUsers = () => {
           throw error;
         }
 
-        setUsers((data as UserRow[]) || []);
+        console.log("Fetched users:", data);
+        setUsers(data || []);
       } catch (error) {
         console.error("Error fetching users:", error);
         toast({
@@ -51,7 +52,7 @@ const AdminUsers = () => {
     };
 
     fetchUsers();
-  }, []);
+  }, [toast]);
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =

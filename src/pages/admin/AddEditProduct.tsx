@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -95,14 +94,38 @@ const AddEditProduct = () => {
       const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
       const filePath = `products/${fileName}`;
       
-      // Use the storageService to handle upload
-      const imageUrl = await uploadFile('products', imageFile, filePath);
-      
-      if (!imageUrl) {
-        throw new Error('Failed to upload image');
+      // Ensure the products bucket exists
+      try {
+        // Check if bucket exists
+        const { data: buckets } = await supabase.storage.listBuckets();
+        const productsBucketExists = buckets?.some(bucket => bucket.name === 'products');
+        
+        if (!productsBucketExists) {
+          // Create the bucket if it doesn't exist
+          await supabase.storage.createBucket('products', {
+            public: true
+          });
+          console.log('Created products bucket');
+        }
+      } catch (error) {
+        console.error('Error checking/creating bucket:', error);
       }
       
-      return imageUrl;
+      // Upload the file
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('products')
+        .upload(filePath, imageFile);
+        
+      if (uploadError) {
+        throw uploadError;
+      }
+      
+      // Get the public URL
+      const { data } = supabase.storage
+        .from('products')
+        .getPublicUrl(filePath);
+        
+      return data.publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
       toast({
