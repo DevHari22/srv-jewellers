@@ -63,7 +63,7 @@ const FeaturedProducts = () => {
                     id: Number(product.id),
                     name: product.name,
                     price: product.price,
-                    image: product.image_url,
+                    image: product.image_url || "",
                     category: product.category,
                     isNew: false,
                     isFeatured: true,
@@ -75,8 +75,8 @@ const FeaturedProducts = () => {
             </div>
             
             <div className="flex justify-center mt-12">
-              <Button asChild className="bg-maroon hover:bg-maroon/90 text-white px-8 py-6 text-lg">
-                <Link to="/collections">View All Collections</Link>
+              <Button className="bg-maroon hover:bg-maroon/90 text-white px-8 py-6 text-lg" asChild>
+                <Link to="/collections">Shop Collections</Link>
               </Button>
             </div>
           </>

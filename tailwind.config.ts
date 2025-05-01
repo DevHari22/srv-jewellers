@@ -90,6 +90,10 @@ const config = {
         marquee2: {
           '0%': { transform: 'translateX(100%)' },
           '100%': { transform: 'translateX(0)' }
+        },
+        shine: {
+          '0%': { backgroundPosition: '200% 0' },
+          '100%': { backgroundPosition: '-200% 0' }
         }
       },
       animation: {
@@ -97,9 +101,11 @@ const config = {
         "accordion-up": "accordion-up 0.2s ease-out",
         marquee: 'marquee 25s linear infinite',
         marquee2: 'marquee2 25s linear infinite',
+        shine: 'shine 3s linear infinite'
       },
       backgroundImage: {
         "gold-gradient": "linear-gradient(90deg, #D4AF37 0%, #FFD700 100%)",
+        "shimmer-gradient": "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%)"
       }
     },
   },

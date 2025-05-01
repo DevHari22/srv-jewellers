@@ -5,7 +5,6 @@ import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import FeaturedCategories from "@/components/FeaturedCategories";
 import FeaturedProducts from "@/components/FeaturedProducts";
-import GoldRateSection from "@/components/GoldRateSection";
 import NewsletterSection from "@/components/NewsletterSection";
 
 const Index = () => {
@@ -58,7 +57,6 @@ const Index = () => {
         </div>
         <FeaturedCategories />
         <FeaturedProducts />
-        <GoldRateSection />
         <div className="py-16 bg-white">
           <div className="container">
             <div className="flex flex-col md:flex-row items-center">
@@ -83,10 +81,13 @@ const Index = () => {
                   high-quality gold - to ensure that each piece meets our exceptional standards of quality
                   and beauty.
                 </p>
-                <p className="text-gray-700 mb-4">
+                <p className="text-gray-700 mb-6">
                   Every creation from Indian Gem Emporium tells a story of tradition, craftsmanship, and
                   the rich cultural heritage of India's jewelry-making legacy.
                 </p>
+                <Button className="bg-gold hover:bg-gold/90 text-maroon-dark px-8 py-2 text-lg" asChild>
+                  <Link to="/about">Explore Our Story</Link>
+                </Button>
               </div>
             </div>
           </div>

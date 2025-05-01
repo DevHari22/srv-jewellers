@@ -25,10 +25,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onAddToCart,
   onAddToWishlist,
 }) => {
+  const [imageError, setImageError] = React.useState(false);
+
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    console.log("Image load error for:", product.name);
     e.currentTarget.src = "/placeholder.svg";
-    e.currentTarget.onerror = null; // Prevent infinite loop
+    setImageError(true);
   };
+
+  // Use image from product.image_url or product.image (for backward compatibility)
+  const imageUrl = product.image || "/placeholder.svg";
 
   return (
     <div className="product-card group relative shadow-sm hover:shadow-md transition-shadow duration-300 rounded-lg overflow-hidden bg-white">
@@ -43,7 +49,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <Link to={`/product/${product.id}`} className="block overflow-hidden">
         <div className="relative aspect-square overflow-hidden bg-gray-100">
           <img
-            src={product.image}
+            src={imageUrl}
             alt={product.name}
             className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
             onError={handleImageError}

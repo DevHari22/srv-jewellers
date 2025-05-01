@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   ShoppingCart, 
   Heart, 
@@ -20,6 +20,7 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { user, signOut } = useAuth();
   const { cartItems } = useCart();
+  const navigate = useNavigate();
   const cartItemCount = cartItems.length;
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   
@@ -40,8 +41,11 @@ const Navbar = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Search logic would go here
-    console.log("Searching for:", searchQuery);
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+      setIsMenuOpen(false);
+    }
   };
 
   const handleSignOut = async () => {
@@ -51,20 +55,14 @@ const Navbar = () => {
 
   return (
     <header className="relative z-50">
-      {/* Top bar with gold and silver rates and contact info */}
+      {/* Top bar with contact info */}
       <div className="bg-maroon text-white py-2 text-sm">
         <div className="container flex flex-wrap justify-between items-center">
           <div className="flex flex-wrap gap-x-4 items-center">
             <span>
-              <span className="font-medium">Gold Rate:</span>{" "}
+              <span className="font-medium">Free Shipping</span>{" "}
               <span className="text-gold-light">
-                ₹{settings?.gold_rate?.toLocaleString() || "5,487"}/gram
-              </span>
-            </span>
-            <span>
-              <span className="font-medium">Silver Rate:</span>{" "}
-              <span className="text-gold-light">
-                ₹{settings?.silver_rate?.toLocaleString() || "72"}/gram
+                on orders above ₹25,000
               </span>
             </span>
           </div>
@@ -115,6 +113,7 @@ const Navbar = () => {
                 className="px-4 py-2 pl-10 border rounded-full w-40 lg:w-64 focus:outline-none focus:ring-1 focus:ring-gold"
               />
               <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
+              <button type="submit" className="sr-only">Search</button>
             </form>
 
             {/* Icons */}
@@ -130,6 +129,7 @@ const Navbar = () => {
                   </span>
                 )}
               </Link>
+              {/* User profile icon and menu */}
               {user ? (
                 <div className="relative group hidden md:block">
                   <button className="hover:text-gold">
@@ -191,6 +191,7 @@ const Navbar = () => {
                   className="w-full px-4 py-2 pl-10 border rounded-full focus:outline-none focus:ring-1 focus:ring-gold"
                 />
                 <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
+                <button type="submit" className="sr-only">Search</button>
               </div>
             </form>
 
@@ -227,6 +228,7 @@ const Navbar = () => {
               </Link>
               <hr className="my-4" />
               
+              {/* User menu items */}
               {user ? (
                 <>
                   <Link to="/account" className="block hover:text-gold" onClick={toggleMenu}>

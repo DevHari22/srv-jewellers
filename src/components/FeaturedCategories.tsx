@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const categories = [
   {
@@ -72,6 +73,12 @@ const FeaturedCategories = () => {
               </div>
             </Link>
           ))}
+        </div>
+        
+        <div className="flex justify-center mt-12">
+          <Button className="bg-gold hover:bg-gold/90 text-maroon-dark text-base px-8 py-6 md:py-3 rounded-md" asChild>
+            <Link to="/categories">View All Categories</Link>
+          </Button>
         </div>
       </div>
     </section>

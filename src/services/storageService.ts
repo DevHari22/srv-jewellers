@@ -10,13 +10,14 @@ export const uploadFile = async (
 ): Promise<string | null> => {
   try {
     // Create a unique file path if not provided
-    const filePath = path || `${Date.now()}_${file.name.split(' ').join('_')}`;
+    const filePath = path || `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
     
     // Check if bucket exists, create if it doesn't
     const { data: buckets } = await supabase.storage.listBuckets();
     const bucketExists = buckets?.some(b => b.name === bucket);
     
     if (!bucketExists) {
+      console.log(`Creating new bucket: ${bucket}`);
       const { error: bucketError } = await supabase.storage.createBucket(bucket, {
         public: true
       });
@@ -26,10 +27,10 @@ export const uploadFile = async (
         toast.error(`Failed to create storage bucket: ${bucketError.message}`);
         return null;
       }
-      console.log(`Created new bucket: ${bucket}`);
     }
     
     // Upload the file
+    console.log(`Uploading file to ${bucket}/${filePath}`);
     const { error: uploadError } = await supabase.storage
       .from(bucket)
       .upload(filePath, file, {
@@ -38,7 +39,9 @@ export const uploadFile = async (
       });
     
     if (uploadError) {
-      throw uploadError;
+      console.error(`Error uploading file:`, uploadError);
+      toast.error(`Upload failed: ${uploadError.message}`);
+      return null;
     }
     
     // Get the public URL
