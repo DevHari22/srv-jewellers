@@ -10,12 +10,32 @@ export const uploadFile = async (
 ): Promise<string | null> => {
   try {
     // Create a unique file path if not provided
-    const filePath = path || `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${file.name.split('.').pop()}`;
+    const filePath = path || `${Date.now()}_${file.name.split(' ').join('_')}`;
+    
+    // Check if bucket exists, create if it doesn't
+    const { data: buckets } = await supabase.storage.listBuckets();
+    const bucketExists = buckets?.some(b => b.name === bucket);
+    
+    if (!bucketExists) {
+      const { error: bucketError } = await supabase.storage.createBucket(bucket, {
+        public: true
+      });
+      
+      if (bucketError) {
+        console.error(`Error creating bucket ${bucket}:`, bucketError);
+        toast.error(`Failed to create storage bucket: ${bucketError.message}`);
+        return null;
+      }
+      console.log(`Created new bucket: ${bucket}`);
+    }
     
     // Upload the file
     const { error: uploadError } = await supabase.storage
       .from(bucket)
-      .upload(filePath, file);
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true
+      });
     
     if (uploadError) {
       throw uploadError;
@@ -26,10 +46,11 @@ export const uploadFile = async (
       .from(bucket)
       .getPublicUrl(filePath);
     
+    console.log("File uploaded successfully, public URL:", data.publicUrl);
     return data.publicUrl;
   } catch (error: any) {
     console.error(`Error uploading file to ${bucket}:`, error);
-    toast.error("Failed to upload file");
+    toast.error(`Failed to upload file: ${error.message || "Unknown error"}`);
     return null;
   }
 };
@@ -53,5 +74,20 @@ export const deleteFile = async (
     console.error(`Error deleting file from ${bucket}:`, error);
     toast.error("Failed to delete file");
     return false;
+  }
+};
+
+// Extract filename from storage URL
+export const getFileNameFromUrl = (url: string): string => {
+  try {
+    const urlObj = new URL(url);
+    const pathParts = urlObj.pathname.split('/');
+    // Return the last segment of the path which is typically the filename
+    return pathParts[pathParts.length - 1];
+  } catch (e) {
+    console.error("Error parsing URL:", e);
+    // If URL parsing fails, try a simple regex approach as fallback
+    const match = url.match(/\/([^\/]+)$/);
+    return match ? match[1] : url;
   }
 };

@@ -25,8 +25,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onAddToCart,
   onAddToWishlist,
 }) => {
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.src = "/placeholder.svg";
+    e.currentTarget.onerror = null; // Prevent infinite loop
+  };
+
   return (
-    <div className="product-card group relative">
+    <div className="product-card group relative shadow-sm hover:shadow-md transition-shadow duration-300 rounded-lg overflow-hidden bg-white">
       {/* Product badges */}
       {product.isNew && (
         <div className="absolute top-2 left-2 z-10 bg-gold text-white text-xs font-medium px-2 py-1 rounded">
@@ -41,6 +46,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
             src={product.image}
             alt={product.name}
             className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
+            onError={handleImageError}
+            loading="lazy"
           />
           
           {/* Quick actions overlay */}
@@ -49,7 +56,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
               variant="secondary" 
               size="icon" 
               className="bg-white text-maroon hover:bg-gold hover:text-white rounded-full" 
-              onClick={() => onAddToCart && onAddToCart(product)}
+              onClick={(e) => {
+                e.preventDefault();
+                onAddToCart && onAddToCart(product);
+              }}
             >
               <ShoppingCart size={18} />
             </Button>
@@ -57,7 +67,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
               variant="secondary" 
               size="icon" 
               className="bg-white text-maroon hover:bg-gold hover:text-white rounded-full" 
-              onClick={() => onAddToWishlist && onAddToWishlist(product)}
+              onClick={(e) => {
+                e.preventDefault();
+                onAddToWishlist && onAddToWishlist(product);
+              }}
             >
               <Heart size={18} />
             </Button>
@@ -73,7 +86,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </h3>
         </Link>
         <p className="text-gray-500 text-sm mb-2">{product.category}</p>
-        <div className="price-tag inline-block">
+        <div className="price-tag inline-block font-semibold text-maroon">
           ₹{product.price.toLocaleString('en-IN')}
         </div>
       </div>
@@ -81,7 +94,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       {/* Add to cart button */}
       <div className="px-4 pb-4">
         <Button 
-          className="w-full btn-maroon"
+          className="w-full bg-maroon hover:bg-maroon/90 text-white"
           onClick={() => onAddToCart && onAddToCart(product)}
         >
           Add to Cart

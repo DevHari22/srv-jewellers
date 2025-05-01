@@ -5,6 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useFeaturedProductsQuery } from "@/hooks/useProductsQuery";
 import { useCart } from "@/context/CartContext";
 import LoadingSpinner from "./LoadingSpinner";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const FeaturedProducts = () => {
   const { data: featuredProducts, isLoading } = useFeaturedProductsQuery();
@@ -52,24 +54,32 @@ const FeaturedProducts = () => {
         {isLoading ? (
           <LoadingSpinner />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {(featuredProducts || []).slice(0, 4).map((product) => (
-              <ProductCard
-                key={product.id}
-                product={{
-                  id: Number(product.id),
-                  name: product.name,
-                  price: product.price,
-                  image: product.image_url,
-                  category: product.category,
-                  isNew: false,
-                  isFeatured: true,
-                }}
-                onAddToCart={() => handleAddToCart(product)}
-                onAddToWishlist={() => handleAddToWishlist(product)}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {(featuredProducts || []).slice(0, 4).map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={{
+                    id: Number(product.id),
+                    name: product.name,
+                    price: product.price,
+                    image: product.image_url,
+                    category: product.category,
+                    isNew: false,
+                    isFeatured: true,
+                  }}
+                  onAddToCart={() => handleAddToCart(product)}
+                  onAddToWishlist={() => handleAddToWishlist(product)}
+                />
+              ))}
+            </div>
+            
+            <div className="flex justify-center mt-12">
+              <Button asChild className="bg-maroon hover:bg-maroon/90 text-white px-8 py-6 text-lg">
+                <Link to="/collections">View All Collections</Link>
+              </Button>
+            </div>
+          </>
         )}
       </div>
     </section>
