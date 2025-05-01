@@ -122,31 +122,59 @@ const AdminDashboard = () => {
 
   // Fetch recent orders
   const fetchRecentOrders = async (): Promise<Order[]> => {
-    const { data: orders, error } = await supabase
+    // First fetch orders
+    const { data: orders, error: ordersError } = await supabase
       .from('orders')
       .select(`
         id,
         total_amount,
         status,
         created_at,
-        user_id,
-        profiles(name, email)
+        user_id
       `)
       .order('created_at', { ascending: false })
       .limit(5);
     
-    if (error) {
-      console.error("Error fetching recent orders:", error);
-      throw error;
+    if (ordersError) {
+      console.error("Error fetching recent orders:", ordersError);
+      throw ordersError;
     }
     
-    return orders?.map(order => ({
-      id: order.id,
-      customer: order.profiles?.name || order.profiles?.email || 'Unknown',
-      date: formatDate(order.created_at),
-      amount: order.total_amount,
-      status: order.status
-    })) || [];
+    if (!orders || orders.length === 0) {
+      return [];
+    }
+    
+    // Then fetch user details separately for each order
+    const ordersWithCustomers = await Promise.all(
+      orders.map(async (order) => {
+        const { data: userProfile, error: userError } = await supabase
+          .from('profiles')
+          .select('name, email')
+          .eq('id', order.user_id)
+          .single();
+          
+        if (userError) {
+          console.error(`Error fetching user for order ${order.id}:`, userError);
+          return {
+            id: order.id,
+            customer: 'Unknown',
+            date: formatDate(order.created_at),
+            amount: order.total_amount,
+            status: order.status
+          };
+        }
+        
+        return {
+          id: order.id,
+          customer: userProfile?.name || userProfile?.email || 'Unknown',
+          date: formatDate(order.created_at),
+          amount: order.total_amount,
+          status: order.status
+        };
+      })
+    );
+    
+    return ordersWithCustomers;
   };
 
   // Fetch top selling products
