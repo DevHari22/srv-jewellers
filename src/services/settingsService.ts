@@ -35,12 +35,14 @@ export const fetchSiteSettings = async (): Promise<SiteSettings | null> => {
 
 export const updateSiteSettings = async (settings: Partial<SiteSettings>): Promise<boolean> => {
   try {
+    console.log("Updating site settings:", settings);
     const { error } = await supabase
       .from('site_settings')
       .update(settings)
       .eq('id', '1');
     
     if (error) {
+      console.error("Supabase error:", error);
       throw error;
     }
     

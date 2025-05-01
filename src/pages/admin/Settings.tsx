@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/Layout";
 import { Save, Globe, DollarSign, Truck, Bell, Lock, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
-import { fetchSiteSettings, SiteSettings } from "@/services/settingsService";
+import { fetchSiteSettings, SiteSettings, updateSiteSettings } from "@/services/settingsService";
 
 const AdminSettings = () => {
   const [settings, setSettings] = useState<SiteSettings>({
@@ -33,15 +32,12 @@ const AdminSettings = () => {
   const handleSaveSettings = async (section: string) => {
     try {
       if (section === 'General') {
-        const { error } = await supabase
-          .from('site_settings')
-          .update({
-            company_name: settings.company_name,
-            address: settings.address,
-            phone: settings.phone,
-            email: settings.email
-          })
-          .eq('id', '1');
+        const { error } = await updateSiteSettings({
+          company_name: settings.company_name,
+          address: settings.address,
+          phone: settings.phone,
+          email: settings.email
+        });
 
         if (error) throw error;
 
@@ -50,15 +46,17 @@ const AdminSettings = () => {
           description: "Store information updated successfully",
         });
       } else if (section === 'Currency') {
-        const { error } = await supabase
-          .from('site_settings')
-          .update({
-            gold_rate: settings.gold_rate,
-            silver_rate: settings.silver_rate
-          })
-          .eq('id', '1');
+        console.log("Updating rates:", {
+          gold_rate: settings.gold_rate,
+          silver_rate: settings.silver_rate
+        });
+        
+        const result = await updateSiteSettings({
+          gold_rate: settings.gold_rate,
+          silver_rate: settings.silver_rate
+        });
 
-        if (error) throw error;
+        if (!result) throw new Error("Failed to update rates");
 
         toast({
           title: "Success",
@@ -233,9 +231,9 @@ const AdminSettings = () => {
                       </span>
                       <Input
                         id="goldRate"
-                        type="text"
-                        value={settings.gold_rate.toString()}
-                        onChange={(e) => setSettings({...settings, gold_rate: parseFloat(e.target.value)})}
+                        type="number"
+                        value={settings.gold_rate}
+                        onChange={(e) => setSettings({...settings, gold_rate: parseFloat(e.target.value) || 0})}
                         className="pl-8 focus:ring-gold"
                       />
                     </div>
@@ -251,9 +249,9 @@ const AdminSettings = () => {
                       </span>
                       <Input
                         id="silverRate"
-                        type="text"
-                        value={settings.silver_rate.toString()}
-                        onChange={(e) => setSettings({...settings, silver_rate: parseFloat(e.target.value)})}
+                        type="number"
+                        value={settings.silver_rate}
+                        onChange={(e) => setSettings({...settings, silver_rate: parseFloat(e.target.value) || 0})}
                         className="pl-8 focus:ring-gold"
                       />
                     </div>

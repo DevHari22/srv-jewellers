@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
@@ -52,13 +51,21 @@ const Navbar = () => {
 
   return (
     <header className="relative z-50">
-      {/* Top bar with gold rates and contact info */}
+      {/* Top bar with gold and silver rates and contact info */}
       <div className="bg-maroon text-white py-2 text-sm">
-        <div className="container flex justify-between items-center">
-          <div>
-            <span className="font-medium">Today's Gold Rate:</span>{" "}
-            <span className="text-gold-light">
-              ₹{settings?.gold_rate?.toLocaleString() || "5,487"}/gram
+        <div className="container flex flex-wrap justify-between items-center">
+          <div className="flex flex-wrap gap-x-4 items-center">
+            <span>
+              <span className="font-medium">Gold Rate:</span>{" "}
+              <span className="text-gold-light">
+                ₹{settings?.gold_rate?.toLocaleString() || "5,487"}/gram
+              </span>
+            </span>
+            <span>
+              <span className="font-medium">Silver Rate:</span>{" "}
+              <span className="text-gold-light">
+                ₹{settings?.silver_rate?.toLocaleString() || "72"}/gram
+              </span>
             </span>
           </div>
           <div className="hidden md:block">
