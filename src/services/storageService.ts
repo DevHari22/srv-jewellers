@@ -29,9 +29,9 @@ export const uploadFile = async (
       }
     }
     
-    // Upload the file
+    // Upload the file - No need to manually add headers, the SDK handles this
     console.log(`Uploading file to ${bucket}/${filePath}`);
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError, data } = await supabase.storage
       .from(bucket)
       .upload(filePath, file, {
         cacheControl: '3600',
@@ -45,12 +45,12 @@ export const uploadFile = async (
     }
     
     // Get the public URL
-    const { data } = supabase.storage
+    const { data: urlData } = supabase.storage
       .from(bucket)
       .getPublicUrl(filePath);
     
-    console.log("File uploaded successfully, public URL:", data.publicUrl);
-    return data.publicUrl;
+    console.log("File uploaded successfully, public URL:", urlData.publicUrl);
+    return urlData.publicUrl;
   } catch (error: any) {
     console.error(`Error uploading file to ${bucket}:`, error);
     toast.error(`Failed to upload file: ${error.message || "Unknown error"}`);
