@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronRight, CreditCard, MapPin, Truck, CheckCircle } from "lucide-react";
@@ -84,12 +85,15 @@ const CheckoutPage = () => {
       }
       
       // Create order in database
+      // Fix: Convert shippingAddress object to JSON string for database storage
+      const shippingAddressString = JSON.stringify(shippingAddress);
+      
       const { data, error } = await supabase
         .from("orders")
         .insert({
           user_id: user.id,
           total_amount: total,
-          shipping_address: shippingAddress,
+          shipping_address: shippingAddressString,
           payment_method: paymentMethod,
           status: "pending",
           items: cartItems.map(item => ({

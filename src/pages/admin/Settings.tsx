@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/Layout";
 import { Save, Globe, DollarSign, Truck, Bell, Lock, Shield } from "lucide-react";
@@ -32,14 +33,14 @@ const AdminSettings = () => {
   const handleSaveSettings = async (section: string) => {
     try {
       if (section === 'General') {
-        const { error } = await updateSiteSettings({
+        const result = await updateSiteSettings({
           company_name: settings.company_name,
           address: settings.address,
           phone: settings.phone,
           email: settings.email
         });
 
-        if (error) throw error;
+        if (!result.success) throw result.error;
 
         toast({
           title: "Success",
@@ -56,7 +57,7 @@ const AdminSettings = () => {
           silver_rate: settings.silver_rate
         });
 
-        if (!result) throw new Error("Failed to update rates");
+        if (!result.success) throw result.error;
 
         toast({
           title: "Success",

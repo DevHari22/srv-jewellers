@@ -33,7 +33,7 @@ export const fetchSiteSettings = async (): Promise<SiteSettings | null> => {
   }
 };
 
-export const updateSiteSettings = async (settings: Partial<SiteSettings>): Promise<boolean> => {
+export const updateSiteSettings = async (settings: Partial<SiteSettings>): Promise<{ success: boolean; error?: any }> => {
   try {
     console.log("Updating site settings:", settings);
     const { error } = await supabase
@@ -46,9 +46,9 @@ export const updateSiteSettings = async (settings: Partial<SiteSettings>): Promi
       throw error;
     }
     
-    return true;
+    return { success: true };
   } catch (error) {
     console.error("Error updating site settings:", error);
-    return false;
+    return { success: false, error };
   }
 };
