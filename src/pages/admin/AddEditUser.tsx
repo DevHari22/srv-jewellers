@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,11 +18,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { createClient } from "@supabase/supabase-js";
 
 const userSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
   phone: z.string().optional(),
   address: z.string().optional(),
   role: z.enum(["admin", "customer"]),
@@ -39,6 +40,7 @@ const AddEditUser = () => {
     defaultValues: {
       name: "",
       email: "",
+      password: "",
       phone: "",
       address: "",
       role: "customer",
@@ -49,36 +51,25 @@ const AddEditUser = () => {
     setLoading(true);
     
     try {
-      // Generate a random password
-      const tempPassword = Math.random().toString(36).slice(-8);
-      
-      // Create the user in Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      // Create the user in Supabase Auth directly (not using admin API)
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
-        password: tempPassword,
-        email_confirm: true,
-        user_metadata: {
-          name: data.name,
-          phone: data.phone,
-          role: data.role
+        password: data.password,
+        options: {
+          data: {
+            name: data.name,
+            role: data.role
+          }
         }
       });
 
       if (authError) throw authError;
 
-      // Send password reset email
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
-        data.email,
-        { redirectTo: `${window.location.origin}/reset-password` }
-      );
-
-      if (resetError) throw resetError;
-
-      // Add user profile data
+      // Add user profile data directly
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
-          id: authData.user.id,
+          id: authData.user?.id,
           name: data.name,
           email: data.email,
           phone: data.phone,
@@ -90,7 +81,7 @@ const AddEditUser = () => {
       
       toast({
         title: "Success",
-        description: "User has been created and notifications sent",
+        description: "User has been created successfully",
       });
       
       navigate('/admin/users');
@@ -155,6 +146,20 @@ const AddEditUser = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password*</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="Password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
@@ -166,7 +171,9 @@ const AddEditUser = () => {
                   </FormItem>
                 )}
               />
-              
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
                 name="role"
@@ -186,21 +193,21 @@ const AddEditUser = () => {
                   </FormItem>
                 )}
               />
+              
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Address" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-            
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Address" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             
             <div className="border-t pt-6 mt-6 flex justify-end">
               <Button
