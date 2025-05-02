@@ -49,8 +49,8 @@ const HeroSection = () => {
             <span className="mx-4 text-maroon-dark font-medium">100% CERTIFIED JEWELRY</span>
             <span className="mx-4 text-maroon-dark font-medium">•</span>
             <span className="mx-4 text-maroon-dark font-medium">BIS HALLMARKED GOLD</span>
-            <span className="mx-4 text-maroon-dark font-medium">•</span>
-            <span className="mx-4 text-maroon-dark font-medium">30-DAY RETURNS</span>
+            {/* <span className="mx-4 text-maroon-dark font-medium">•</span>
+            <span className="mx-4 text-maroon-dark font-medium">30-DAY RETURNS</span> */}
           </div>
           <div className="animate-marquee2 inline-block absolute">
             <span className="mx-4 text-maroon-dark font-medium">FREE SHIPPING ON ORDERS ABOVE ₹25,000</span>
@@ -58,8 +58,8 @@ const HeroSection = () => {
             <span className="mx-4 text-maroon-dark font-medium">100% CERTIFIED JEWELRY</span>
             <span className="mx-4 text-maroon-dark font-medium">•</span>
             <span className="mx-4 text-maroon-dark font-medium">BIS HALLMARKED GOLD</span>
-            <span className="mx-4 text-maroon-dark font-medium">•</span>
-            <span className="mx-4 text-maroon-dark font-medium">30-DAY RETURNS</span>
+            {/* <span className="mx-4 text-maroon-dark font-medium">•</span>
+            <span className="mx-4 text-maroon-dark font-medium">30-DAY RETURNS</span> */}
           </div>
         </div>
       </div>
