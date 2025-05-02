@@ -110,34 +110,21 @@ const Navbar = () => {
     <header className="relative z-50">
       {/* Top bar with gold rates */}
       <div className="bg-maroon text-white py-2 text-sm">
+        
         <div className="container flex flex-wrap justify-between items-center">
-          <div className="flex flex-wrap gap-x-4 items-center overflow-x-auto whitespace-nowrap">
-            {!loading && goldRates && (
-              <>
-                <span className="flex items-center">
-                  <span className="font-medium text-gold-light">24K Gold:</span>{" "}
-                  <span className="mx-1">₹{goldRates['24k_rate']}/g</span>
-                  <span className={`flex items-center ${goldRates['24k_trend'] === 'up' ? 'text-green-400' : 'text-red-400'}`}>
-                    {goldRates['24k_trend'] === 'up' ? (
-                      <TrendingUp size={14} className="ml-1" />
-                    ) : (
-                      <TrendingDown size={14} className="ml-1" />
-                    )}
-                  </span>
-                </span>
-                <span className="flex items-center">
-                  <span className="font-medium text-gold-light">22K Gold:</span>{" "}
-                  <span className="mx-1">₹{goldRates['22k_rate']}/g</span>
-                  <span className={`flex items-center ${goldRates['22k_trend'] === 'up' ? 'text-green-400' : 'text-red-400'}`}>
-                    {goldRates['22k_trend'] === 'up' ? (
-                      <TrendingUp size={14} className="ml-1" />
-                    ) : (
-                      <TrendingDown size={14} className="ml-1" />
-                    )}
-                  </span>
-                </span>
-              </>
-            )}
+          <div className="flex flex-wrap gap-x-4 items-center">
+            <span>
+              <span className="font-medium">Gold Rate:</span>{" "}
+              <span className="text-gold-light">
+                ₹{settings?.gold_rate?.toLocaleString() || "5,487"}/gram
+              </span>
+            </span>
+            <span>
+              <span className="font-medium">Silver Rate:</span>{" "}
+              <span className="text-gold-light">
+                ₹{settings?.silver_rate?.toLocaleString() || "72"}/gram
+              </span>
+            </span>
           </div>
           <div className="hidden md:block">
             <span>Call Us: {settings?.phone || "+91 98765 43210"}</span>
