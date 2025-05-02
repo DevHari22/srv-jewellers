@@ -29,8 +29,17 @@ export const uploadFile = async (
       }
     }
     
-    // Upload the file - No need to manually add headers, the SDK handles this
+    // Upload the file
     console.log(`Uploading file to ${bucket}/${filePath}`);
+    
+    // Make sure we have an active session before attempting to upload
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      console.error("No active session found. User must be logged in to upload files.");
+      toast.error("Authentication required. Please log in again.");
+      return null;
+    }
+    
     const { error: uploadError, data } = await supabase.storage
       .from(bucket)
       .upload(filePath, file, {
@@ -64,6 +73,14 @@ export const deleteFile = async (
   path: string
 ): Promise<boolean> => {
   try {
+    // Make sure we have an active session before attempting to delete
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      console.error("No active session found. User must be logged in to delete files.");
+      toast.error("Authentication required. Please log in again.");
+      return false;
+    }
+    
     const { error } = await supabase.storage
       .from(bucket)
       .remove([path]);

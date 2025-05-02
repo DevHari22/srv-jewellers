@@ -8,6 +8,7 @@ import FeaturedProducts from "@/components/FeaturedProducts";
 import NewsletterSection from "@/components/NewsletterSection";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import GoldRateSection from "@/components/GoldRateSection";
 
 const Index = () => {
   return (
@@ -15,12 +16,12 @@ const Index = () => {
       <Navbar />
       <main className="flex-grow">
         <HeroSection />
-        <div className="py-16 bg-white">
+        <div className="py-12 bg-white">
           <div className="container">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Feature blocks */}
-              <div className="flex flex-col items-center text-center p-6 border border-gold/20 rounded-lg">
-                <div className="w-16 h-16 rounded-full bg-gold-light flex items-center justify-center mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Feature blocks with subtler colors */}
+              <div className="flex flex-col items-center text-center p-6 border border-gold/10 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="w-16 h-16 rounded-full bg-gold-light/20 flex items-center justify-center mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-maroon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
@@ -31,8 +32,8 @@ const Index = () => {
                 </p>
               </div>
               
-              <div className="flex flex-col items-center text-center p-6 border border-gold/20 rounded-lg">
-                <div className="w-16 h-16 rounded-full bg-gold-light flex items-center justify-center mb-4">
+              <div className="flex flex-col items-center text-center p-6 border border-gold/10 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="w-16 h-16 rounded-full bg-gold-light/20 flex items-center justify-center mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-maroon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                   </svg>
@@ -43,8 +44,8 @@ const Index = () => {
                 </p>
               </div>
               
-              <div className="flex flex-col items-center text-center p-6 border border-gold/20 rounded-lg">
-                <div className="w-16 h-16 rounded-full bg-gold-light flex items-center justify-center mb-4">
+              <div className="flex flex-col items-center text-center p-6 border border-gold/10 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="w-16 h-16 rounded-full bg-gold-light/20 flex items-center justify-center mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-maroon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   </svg>
@@ -57,8 +58,9 @@ const Index = () => {
             </div>
           </div>
         </div>
+        <GoldRateSection />
         <FeaturedCategories />
-        <FeaturedProducts />
+        <FeaturedProducts displayCount={8} />
         <div className="py-16 bg-white">
           <div className="container">
             <div className="flex flex-col md:flex-row items-center">
@@ -66,15 +68,15 @@ const Index = () => {
               <div className="md:w-1/2 mb-8 md:mb-0 md:pr-8">
                 <img 
                   src="https://images.unsplash.com/photo-1684487747118-0497859dcamf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3087&q=80" 
-                  alt="Indian Jewelry Craftsmanship" 
+                  alt="SRV JEWELLERS Craftsmanship" 
                   className="rounded-lg shadow-md w-full h-auto max-h-[500px] object-cover"
                 />
               </div>
               
               <div className="md:w-1/2">
-                <h2 className="text-3xl font-serif font-bold mb-4 text-gold-gradient">Our Heritage</h2>
+                <h2 className="text-3xl font-serif font-bold mb-4 text-maroon">Our Heritage</h2>
                 <p className="text-gray-700 mb-4">
-                  For over three generations, Indian Gem Emporium has been crafting exquisite jewelry that
+                  For over three generations, SRV JEWELLERS has been crafting exquisite jewelry that
                   combines traditional artistry with contemporary design. Our master artisans bring centuries
                   of heritage techniques to create pieces that are both timeless and modern.
                 </p>
@@ -84,10 +86,10 @@ const Index = () => {
                   and beauty.
                 </p>
                 <p className="text-gray-700 mb-6">
-                  Every creation from Indian Gem Emporium tells a story of tradition, craftsmanship, and
+                  Every creation from SRV JEWELLERS tells a story of tradition, craftsmanship, and
                   the rich cultural heritage of India's jewelry-making legacy.
                 </p>
-                <Button className="bg-gold hover:bg-gold/90 text-maroon-dark px-8 py-2 text-lg" asChild>
+                <Button className="bg-maroon hover:bg-maroon/90 text-white px-8 py-2 text-lg" asChild>
                   <Link to="/about">Explore Our Story</Link>
                 </Button>
               </div>

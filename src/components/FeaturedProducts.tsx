@@ -8,7 +8,11 @@ import LoadingSpinner from "./LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
-const FeaturedProducts = () => {
+interface FeaturedProductsProps {
+  displayCount?: number;
+}
+
+const FeaturedProducts = ({ displayCount = 4 }: FeaturedProductsProps) => {
   const { data: featuredProducts, isLoading } = useFeaturedProductsQuery();
   const { toast } = useToast();
   const { addToCart } = useCart();
@@ -39,11 +43,11 @@ const FeaturedProducts = () => {
   };
 
   return (
-    <section className="py-16 bg-gray-50 indian-pattern">
+    <section className="py-16 bg-gray-50">
       <div className="container">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">
-            <span className="text-gold-gradient">Featured Products</span>
+            <span className="text-maroon">Featured Products</span>
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Explore our most popular and exclusive jewelry pieces, chosen for their exquisite
@@ -56,7 +60,7 @@ const FeaturedProducts = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {(featuredProducts || []).slice(0, 4).map((product) => (
+              {(featuredProducts || []).slice(0, displayCount).map((product) => (
                 <ProductCard
                   key={product.id}
                   product={{
