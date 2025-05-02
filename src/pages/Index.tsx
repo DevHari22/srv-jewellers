@@ -8,7 +8,6 @@ import FeaturedProducts from "@/components/FeaturedProducts";
 import NewsletterSection from "@/components/NewsletterSection";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import GoldRateSection from "@/components/GoldRateSection";
 
 const Index = () => {
   return (
@@ -58,7 +57,6 @@ const Index = () => {
             </div>
           </div>
         </div>
-        <GoldRateSection />
         <FeaturedCategories />
         <FeaturedProducts displayCount={8} />
         <div className="py-16 bg-white">

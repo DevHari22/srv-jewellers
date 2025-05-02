@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
@@ -14,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/AuthProvider";
 import { useCart } from "@/context/CartContext";
 import { fetchSiteSettings, SiteSettings } from "@/services/settingsService";
+import { supabase } from "@/integrations/supabase/client";
+import { TrendingUp, TrendingDown } from "lucide-react";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,6 +26,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const cartItemCount = cartItems.length;
   const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [goldRates, setGoldRates] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     const getSettings = async () => {
@@ -33,6 +38,54 @@ const Navbar = () => {
     };
     
     getSettings();
+  }, []);
+
+  useEffect(() => {
+    const fetchGoldRates = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('gold_rates')
+          .select('*')
+          .single();
+        
+        if (error) {
+          console.error("Error fetching gold rates:", error);
+          return;
+        }
+
+        if (data) {
+          setGoldRates(data);
+        }
+      } catch (error) {
+        console.error("Unexpected error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGoldRates();
+
+    const channel = supabase
+      .channel('gold_rates_changes')
+      .on(
+        'postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'gold_rates' 
+        },
+        () => {
+          fetchGoldRates();
+        }
+      )
+      .subscribe();
+
+    const intervalId = setInterval(fetchGoldRates, 5 * 60 * 1000);
+
+    return () => {
+      clearInterval(intervalId);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const toggleMenu = () => {
@@ -55,16 +108,36 @@ const Navbar = () => {
 
   return (
     <header className="relative z-50">
-      {/* Top bar with contact info */}
+      {/* Top bar with gold rates */}
       <div className="bg-maroon text-white py-2 text-sm">
         <div className="container flex flex-wrap justify-between items-center">
-          <div className="flex flex-wrap gap-x-4 items-center">
-            <span>
-              <span className="font-medium">Free Shipping</span>{" "}
-              <span className="text-gold-light">
-                on orders above ₹25,000
-              </span>
-            </span>
+          <div className="flex flex-wrap gap-x-4 items-center overflow-x-auto whitespace-nowrap">
+            {!loading && goldRates && (
+              <>
+                <span className="flex items-center">
+                  <span className="font-medium text-gold-light">24K Gold:</span>{" "}
+                  <span className="mx-1">₹{goldRates['24k_rate']}/g</span>
+                  <span className={`flex items-center ${goldRates['24k_trend'] === 'up' ? 'text-green-400' : 'text-red-400'}`}>
+                    {goldRates['24k_trend'] === 'up' ? (
+                      <TrendingUp size={14} className="ml-1" />
+                    ) : (
+                      <TrendingDown size={14} className="ml-1" />
+                    )}
+                  </span>
+                </span>
+                <span className="flex items-center">
+                  <span className="font-medium text-gold-light">22K Gold:</span>{" "}
+                  <span className="mx-1">₹{goldRates['22k_rate']}/g</span>
+                  <span className={`flex items-center ${goldRates['22k_trend'] === 'up' ? 'text-green-400' : 'text-red-400'}`}>
+                    {goldRates['22k_trend'] === 'up' ? (
+                      <TrendingUp size={14} className="ml-1" />
+                    ) : (
+                      <TrendingDown size={14} className="ml-1" />
+                    )}
+                  </span>
+                </span>
+              </>
+            )}
           </div>
           <div className="hidden md:block">
             <span>Call Us: {settings?.phone || "+91 98765 43210"}</span>
