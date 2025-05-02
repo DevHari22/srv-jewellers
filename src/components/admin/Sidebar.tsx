@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
@@ -20,6 +20,23 @@ const AdminSidebar = () => {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const isMobile = useIsMobile();
+  
+  // Automatically collapse sidebar on medium screens
+  useEffect(() => {
+    const handleResize = () => {
+      // Check if screen width is between mobile and larger screens (md breakpoint)
+      const isMediumScreen = window.innerWidth >= 768 && window.innerWidth < 1024;
+      if (isMediumScreen) {
+        setCollapsed(true);
+      } else if (!isMobile) {
+        setCollapsed(false);
+      }
+    };
+
+    handleResize(); // Run once on mount
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isMobile]);
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -42,17 +59,17 @@ const AdminSidebar = () => {
   };
 
   return (
-    <div className={`${collapsed ? 'w-16 sm:w-20' : 'w-64'} h-screen bg-maroon-dark text-white fixed left-0 top-0 overflow-y-auto transition-all duration-300`}>
-      <div className="p-4 sm:p-6 relative">
+    <div className={`${collapsed ? 'w-16 sm:w-16' : 'w-64'} h-screen bg-maroon-dark text-white fixed left-0 top-0 overflow-y-auto transition-all duration-300`}>
+      <div className="p-4 relative">
         <button 
           onClick={toggleSidebar}
-          className="absolute top-2 sm:top-4 right-1 sm:right-2 p-1 rounded-full bg-maroon-dark/50 hover:bg-maroon text-gold-light"
+          className="absolute top-2 right-1 p-1 rounded-full bg-maroon-dark/50 hover:bg-maroon text-gold-light"
           aria-label={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
         >
           {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         </button>
         
-        <h1 className={`${collapsed ? 'text-xl' : 'text-2xl'} font-bold text-gold mb-6 sm:mb-8 text-center transition-all duration-300`}>
+        <h1 className={`${collapsed ? 'text-xl text-center' : 'text-2xl'} font-bold text-gold mb-6 text-center transition-all duration-300`}>
           {collapsed ? 'SRV' : 'SRV JEWELLERS'}
         </h1>
         
@@ -66,24 +83,25 @@ const AdminSidebar = () => {
               <li key={item.path}>
                 <Link
                   to={item.path}
-                  className={`flex items-center ${collapsed ? 'justify-center' : 'px-4'} py-2 sm:py-3 rounded-md transition-colors ${
-                    isActive(item.path)
+                  className={`flex items-center ${collapsed ? 'justify-center' : 'px-4'} py-2 rounded-md transition-colors
+                    ${isActive(item.path)
                       ? "bg-maroon text-gold-light"
-                      : "hover:bg-maroon hover:text-gold-light"
-                  }`}
+                      : "hover:bg-maroon hover:text-gold-light"}
+                  `}
                 >
                   <item.icon size={18} className={collapsed ? '' : 'mr-3'} />
-                  {!collapsed && <span>{item.label}</span>}
+                  {!collapsed && <span className="whitespace-nowrap overflow-hidden text-ellipsis">{item.label}</span>}
                 </Link>
               </li>
             ))}
           </ul>
         </nav>
       </div>
-      <div className="absolute bottom-0 left-0 w-full p-4 sm:p-6">
+      <div className="absolute bottom-0 left-0 w-full p-4">
         <button
           onClick={handleSignOut}
-          className={`flex items-center ${collapsed ? 'justify-center' : 'px-4'} py-2 sm:py-3 w-full text-left text-gray-300 hover:text-gold-light transition-colors`}
+          className={`flex items-center ${collapsed ? 'justify-center' : 'px-4'} py-2 w-full text-left text-gray-300 hover:text-gold-light transition-colors`}
+          aria-label="Logout"
         >
           <LogOut size={18} className={collapsed ? '' : 'mr-3'} />
           {!collapsed && <span>Logout</span>}
