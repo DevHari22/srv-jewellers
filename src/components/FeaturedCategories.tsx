@@ -36,19 +36,19 @@ const categories = [
 
 const FeaturedCategories = () => {
   return (
-    <section className="py-16 bg-white">
-      <div className="container">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">
+    <section className="py-10 sm:py-12 md:py-16 bg-white">
+      <div className="container px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-8 sm:mb-10 md:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold mb-3 sm:mb-4">
             <span className="text-gold-gradient">Shop By Category</span>
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-gray-600 max-w-2xl mx-auto text-sm sm:text-base">
             Browse our extensive collection of traditional and contemporary Indian jewelry,
             crafted by master artisans with the finest materials.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {categories.map((category) => (
             <Link
               key={category.id}
@@ -61,22 +61,23 @@ const FeaturedCategories = () => {
                   src={category.image}
                   alt={category.name}
                   className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
                 />
               </div>
 
               {/* Category info overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-6">
-                <h3 className="text-white text-xl font-serif font-bold mb-1 group-hover:text-gold-light transition-colors">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-3 sm:p-4 md:p-6">
+                <h3 className="text-white text-base sm:text-lg md:text-xl font-serif font-bold mb-0 sm:mb-1 group-hover:text-gold-light transition-colors">
                   {category.name}
                 </h3>
-                <p className="text-gray-300 text-sm">{category.count} Products</p>
+                <p className="text-gray-300 text-xs sm:text-sm">{category.count} Products</p>
               </div>
             </Link>
           ))}
         </div>
         
-        <div className="flex justify-center mt-12">
-          <Button className="bg-gold hover:bg-gold/90 text-maroon-dark text-base px-8 py-6 md:py-3 rounded-md" asChild>
+        <div className="flex justify-center mt-8 sm:mt-10 md:mt-12">
+          <Button className="bg-gold hover:bg-gold/90 text-maroon-dark text-xs sm:text-sm md:text-base px-6 sm:px-8 py-2 sm:py-3 rounded-md" asChild>
             <Link to="/categories">View All Categories</Link>
           </Button>
         </div>

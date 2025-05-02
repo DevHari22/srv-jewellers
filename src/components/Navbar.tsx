@@ -9,14 +9,16 @@ import {
   Menu, 
   X,
   ChevronDown,
-  LogOut
+  LogOut,
+  TrendingUp,
+  TrendingDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/AuthProvider";
 import { useCart } from "@/context/CartContext";
 import { fetchSiteSettings, SiteSettings } from "@/services/settingsService";
 import { supabase } from "@/integrations/supabase/client";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -28,6 +30,7 @@ const Navbar = () => {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [goldRates, setGoldRates] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const isMobile = useIsMobile();
   
   useEffect(() => {
     const getSettings = async () => {
@@ -106,43 +109,56 @@ const Navbar = () => {
     setIsMenuOpen(false);
   };
 
+  // Format gold rate trend indicator
+  const formatTrendIndicator = (isUp: boolean) => {
+    return isUp ? (
+      <TrendingUp size={14} className="text-green-600 inline ml-1" />
+    ) : (
+      <TrendingDown size={14} className="text-red-600 inline ml-1" />
+    );
+  };
+
   return (
     <header className="relative z-50">
       {/* Top bar with gold rates */}
-      <div className="bg-maroon text-white py-2 text-sm">
-        
+      <div className="bg-maroon text-white py-1 sm:py-2 text-xs sm:text-sm">
         <div className="container flex flex-wrap justify-between items-center">
-          <div className="flex flex-wrap gap-x-4 items-center">
-            <span>
-              <span className="font-medium">Gold Rate:</span>{" "}
-              <span className="text-gold-light">
-                ₹{settings?.gold_rate?.toLocaleString() || "5,487"}/gram
+          <div className="flex flex-wrap gap-x-2 sm:gap-x-4 items-center w-full justify-center sm:justify-between">
+            <div className="flex flex-wrap gap-x-3 sm:gap-x-4 items-center justify-center sm:justify-start">
+              <span className="whitespace-nowrap">
+                <span className="font-medium">Gold Rate:</span>{" "}
+                <span className="text-gold-light">
+                  ₹{settings?.gold_rate?.toLocaleString() || "5,487"}/gram
+                  {goldRates?.gold_trend_up !== undefined && formatTrendIndicator(goldRates.gold_trend_up)}
+                </span>
               </span>
-            </span>
-            <span>
-              <span className="font-medium">Silver Rate:</span>{" "}
-              <span className="text-gold-light">
-                ₹{settings?.silver_rate?.toLocaleString() || "72"}/gram
+              <span className="hidden xs:inline">|</span>
+              <span className="whitespace-nowrap">
+                <span className="font-medium">Silver Rate:</span>{" "}
+                <span className="text-gold-light">
+                  ₹{settings?.silver_rate?.toLocaleString() || "72"}/gram
+                  {goldRates?.silver_trend_up !== undefined && formatTrendIndicator(goldRates.silver_trend_up)}
+                </span>
               </span>
-            </span>
-          </div>
-          <div className="hidden md:block">
-            <span>Call Us: {settings?.phone || "+91 98765 43210"}</span>
+            </div>
+            <div className="hidden sm:block">
+              <span className="whitespace-nowrap">Call Us: {settings?.phone || "+91 98765 43210"}</span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main navbar */}
-      <nav className="bg-white shadow-md py-4">
+      <nav className="bg-white shadow-md py-3 sm:py-4">
         <div className="container flex justify-between items-center">
           {/* Logo */}
-          <Link to="/" className="font-serif text-2xl md:text-3xl font-bold bg-gradient-to-r from-maroon via-gold to-maroon bg-clip-text text-transparent">
+          <Link to="/" className="font-serif text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-maroon via-gold to-maroon bg-clip-text text-transparent pl-2 sm:pl-0">
             {settings?.company_name || "SRV JEWELLERS"}
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
-            <div className="space-x-6 font-medium">
+          <div className="hidden lg:flex items-center space-x-6">
+            <div className="space-x-4 sm:space-x-6 font-medium">
               <Link to="/" className="hover:text-gold transition-colors">Home</Link>
               <div className="relative inline-block group">
                 <Link to="/categories" className="flex items-center hover:text-gold transition-colors">
@@ -162,29 +178,29 @@ const Navbar = () => {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center">
             {/* Search Bar - Desktop */}
-            <form onSubmit={handleSearch} className="relative hidden md:block">
+            <form onSubmit={handleSearch} className="relative hidden md:block mr-4">
               <input
                 type="text"
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="px-4 py-2 pl-10 border rounded-full w-40 lg:w-64 focus:outline-none focus:ring-1 focus:ring-gold"
+                className="px-4 py-1.5 pl-9 border rounded-full w-36 lg:w-64 focus:outline-none focus:ring-1 focus:ring-gold text-sm"
               />
-              <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
+              <Search size={16} className="absolute left-3 top-2 text-gray-400" />
               <button type="submit" className="sr-only">Search</button>
             </form>
 
             {/* Icons */}
-            <div className="flex items-center space-x-3">
-              <Link to="/wishlist" className="hover:text-gold">
-                <Heart size={24} />
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Link to="/wishlist" className="hover:text-gold p-1">
+                <Heart size={isMobile ? 20 : 24} />
               </Link>
-              <Link to="/cart" className="relative">
-                <ShoppingCart size={24} />
+              <Link to="/cart" className="relative p-1">
+                <ShoppingCart size={isMobile ? 20 : 24} />
                 {cartItemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-maroon text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-2 -right-2 bg-maroon text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center">
                     {cartItemCount}
                   </span>
                 )}
@@ -192,7 +208,7 @@ const Navbar = () => {
               {/* User profile icon and menu */}
               {user ? (
                 <div className="relative group hidden md:block">
-                  <button className="hover:text-gold">
+                  <button className="hover:text-gold p-1">
                     <User size={24} />
                   </button>
                   <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-20 hidden group-hover:block">
@@ -210,7 +226,7 @@ const Navbar = () => {
                   </div>
                 </div>
               ) : (
-                <Link to="/login" className="hover:text-gold hidden md:block">
+                <Link to="/login" className="hover:text-gold hidden md:block p-1">
                   <User size={24} />
                 </Link>
               )}
@@ -219,11 +235,11 @@ const Navbar = () => {
             {/* Mobile menu button */}
             <Button
               variant="ghost"
-              size="icon"
-              className="lg:hidden"
+              size="sm"
+              className="lg:hidden ml-2"
               onClick={toggleMenu}
             >
-              <Menu size={24} />
+              <Menu size={isMobile ? 20 : 24} />
             </Button>
           </div>
         </div>
@@ -232,11 +248,11 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden">
-          <div className="absolute right-0 top-0 h-full w-64 bg-white shadow-xl p-5 overflow-y-auto">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="font-serif text-xl font-bold">Menu</h2>
-              <Button variant="ghost" size="icon" onClick={toggleMenu}>
-                <X size={24} />
+          <div className="absolute right-0 top-0 h-full w-64 sm:w-80 bg-white shadow-xl p-4 sm:p-5 overflow-y-auto">
+            <div className="flex justify-between items-center mb-6 sm:mb-8">
+              <h2 className="font-serif text-lg sm:text-xl font-bold">Menu</h2>
+              <Button variant="ghost" size="sm" onClick={toggleMenu}>
+                <X size={isMobile ? 20 : 24} />
               </Button>
             </div>
 
@@ -248,15 +264,15 @@ const Navbar = () => {
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-2 pl-10 border rounded-full focus:outline-none focus:ring-1 focus:ring-gold"
+                  className="w-full px-4 py-2 pl-10 border rounded-full focus:outline-none focus:ring-1 focus:ring-gold text-sm"
                 />
-                <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
+                <Search size={16} className="absolute left-3 top-2.5 text-gray-400" />
                 <button type="submit" className="sr-only">Search</button>
               </div>
             </form>
 
             {/* Mobile Nav Links */}
-            <div className="space-y-4 text-lg">
+            <div className="space-y-3 sm:space-y-4 text-base sm:text-lg">
               <Link to="/" className="block hover:text-gold" onClick={toggleMenu}>
                 Home
               </Link>
