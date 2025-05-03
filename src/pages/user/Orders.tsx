@@ -1,16 +1,31 @@
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { ChevronRight, Search, Eye, Package } from "lucide-react";
+import { ChevronRight, Search, Eye, Package, X, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { fetchUserOrders, type Order } from "@/services/orderService";
+import { fetchUserOrders, type Order, cancelOrder } from "@/services/orderService";
 import { supabase } from "@/integrations/supabase/client";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 
 const UserOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     loadOrders();
@@ -49,10 +64,50 @@ const UserOrders = () => {
       setOrders(fetchedOrders);
     } catch (error) {
       console.error('Error loading orders:', error);
+      toast({
+        title: "Failed to load orders",
+        description: "There was a problem loading your orders. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
+
+  const handleCancelOrder = async (orderId: string) => {
+    setCancellingOrderId(orderId);
+    try {
+      await cancelOrder(orderId);
+      toast({
+        title: "Order Cancelled",
+        description: "Your order has been cancelled successfully.",
+      });
+      
+      // Update the local state
+      setOrders(currentOrders => 
+        currentOrders.map(order => 
+          order.id === orderId 
+            ? { ...order, status: 'cancelled' }
+            : order
+        )
+      );
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      toast({
+        title: "Cancellation Failed",
+        description: "There was a problem cancelling your order. Please try again or contact customer support.",
+        variant: "destructive",
+      });
+    } finally {
+      setCancellingOrderId(null);
+    }
+  };
+
+  // Filter orders based on search query
+  const filteredOrders = orders.filter(order => 
+    order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    order.status.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Status color mappings
   const getStatusColor = (status: string) => {
@@ -68,6 +123,11 @@ const UserOrders = () => {
       default:
         return "bg-gray-100 text-gray-800";
     }
+  };
+
+  // Determine if an order can be cancelled
+  const canCancelOrder = (order: Order) => {
+    return ['pending', 'processing'].includes(order.status.toLowerCase());
   };
 
   if (loading) {
@@ -108,6 +168,8 @@ const UserOrders = () => {
                 <input
                   type="text"
                   placeholder="Search orders..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-gold"
                 />
                 <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
@@ -115,7 +177,7 @@ const UserOrders = () => {
             </div>
           </div>
           
-          {orders.length > 0 ? (
+          {filteredOrders.length > 0 ? (
             <div className="bg-white shadow-md rounded-lg overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -125,11 +187,11 @@ const UserOrders = () => {
                       <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
                       <th className="text-left py-3 px-4 font-medium text-gray-500">Status</th>
                       <th className="text-left py-3 px-4 font-medium text-gray-500">Total</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-500">Action</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-500">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {orders.map(order => (
+                    {filteredOrders.map(order => (
                       <tr key={order.id} className="border-b last:border-0 hover:bg-gray-50">
                         <td className="py-3 px-4 font-medium">{order.id}</td>
                         <td className="py-3 px-4">
@@ -142,12 +204,64 @@ const UserOrders = () => {
                         </td>
                         <td className="py-3 px-4 font-medium">₹{order.total_amount.toLocaleString()}</td>
                         <td className="py-3 px-4">
-                          <Button variant="outline" size="sm" className="border-gray-300" asChild>
-                            <Link to={`/orders/${order.id}`}>
-                              <Eye size={16} className="mr-1" />
-                              View
-                            </Link>
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" className="border-gray-300" asChild>
+                              <Link to={`/orders/${order.id}`}>
+                                <Eye size={16} className="mr-1" />
+                                View
+                              </Link>
+                            </Button>
+                            
+                            {canCancelOrder(order) && (
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline" size="sm" className="border-gray-300 text-red-600 hover:text-red-700">
+                                    <X size={16} className="mr-1" />
+                                    Cancel
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle className="flex items-center">
+                                      <AlertCircle className="h-5 w-5 mr-2 text-red-500" />
+                                      Cancel Order
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                      Are you sure you want to cancel this order? This action cannot be undone.
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <div className="border rounded-md p-4 mb-4">
+                                    <p className="font-medium">Order #{order.id}</p>
+                                    <p className="text-sm text-gray-500">
+                                      Placed on {new Date(order.created_at).toLocaleDateString()}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                      Total: ₹{order.total_amount.toLocaleString()}
+                                    </p>
+                                  </div>
+                                  <DialogFooter>
+                                    <DialogClose asChild>
+                                      <Button variant="outline">Keep Order</Button>
+                                    </DialogClose>
+                                    <Button 
+                                      variant="destructive"
+                                      onClick={() => handleCancelOrder(order.id)}
+                                      disabled={cancellingOrderId === order.id}
+                                    >
+                                      {cancellingOrderId === order.id ? (
+                                        <>
+                                          <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                                          Cancelling...
+                                        </>
+                                      ) : (
+                                        'Cancel Order'
+                                      )}
+                                    </Button>
+                                  </DialogFooter>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -162,7 +276,7 @@ const UserOrders = () => {
               </div>
               <h2 className="text-2xl font-medium text-gray-900 mb-2">No orders yet</h2>
               <p className="text-gray-600 mb-6">
-                You haven't placed any orders yet. Start shopping to create your first order.
+                {searchQuery ? "No orders match your search criteria." : "You haven't placed any orders yet. Start shopping to create your first order."}
               </p>
               <Link to="/categories">
                 <Button className="bg-maroon hover:bg-maroon-dark text-white">

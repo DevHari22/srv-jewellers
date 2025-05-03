@@ -1,221 +1,160 @@
 
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { CartItem } from "@/context/CartContext";
+import { supabase } from "../integrations/supabase/client";
 
-export type Order = {
+export interface Order {
   id: string;
   user_id: string;
-  status: string;
   total_amount: number;
-  shipping_address: string;
   created_at: string;
-  items?: OrderItem[];
-};
+  status: string;
+  shipping_address: string;
+}
 
-export type OrderItem = {
+export interface OrderItem {
   id: string;
   order_id: string;
   product_id: string;
   quantity: number;
   price_at_time: number;
-  product?: {
-    name: string;
-    image_url: string;
-  };
-};
+}
 
-export type OrderInput = {
-  shipping_address: string;
-  items: CartItem[];
-  total_amount: number;
-};
-
-// Function to create a new order
-export const createOrder = async (orderData: OrderInput): Promise<Order | null> => {
-  try {
-    // Get the current user
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      toast.error('You need to be logged in to place an order');
-      return null;
-    }
-    
-    // First, create the order with user_id
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .insert({
-        shipping_address: orderData.shipping_address,
-        total_amount: orderData.total_amount,
-        user_id: user.id
-      })
-      .select()
-      .single();
-    
-    if (orderError) {
-      console.error('Error creating order:', orderError);
-      toast.error('Failed to create order');
-      return null;
-    }
-    
-    // Then, create order items for each product
-    const orderItems = orderData.items.map(item => ({
-      order_id: order.id,
-      product_id: item.id,
-      quantity: item.quantity,
-      price_at_time: item.price,
-    }));
-    
-    const { error: itemsError } = await supabase
-      .from('order_items')
-      .insert(orderItems);
-    
-    if (itemsError) {
-      console.error('Error creating order items:', itemsError);
-      toast.error('Failed to create order items');
-      
-      // Clean up the order if we failed to create items
-      await supabase.from('orders').delete().eq('id', order.id);
-      return null;
-    }
-    
-    toast.success('Order placed successfully!');
-    return order;
-  } catch (error) {
-    console.error('Error creating order:', error);
-    toast.error('Failed to place order');
-    return null;
-  }
-};
-
-// Function to fetch user orders
 export const fetchUserOrders = async (): Promise<Order[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('Error fetching orders:', error);
-      toast.error('Failed to load orders');
-      return [];
-    }
-    
-    return data || [];
-  } catch (error) {
+  const { data: session } = await supabase.auth.getSession();
+  if (!session.session) return [];
+
+  const userId = session.session.user.id;
+
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
     console.error('Error fetching orders:', error);
-    toast.error('Failed to load orders');
     return [];
   }
+
+  return data || [];
 };
 
-// Function to fetch a single order with items
-export const fetchOrderById = async (id: string): Promise<Order | null> => {
-  try {
-    // Get the order
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('id', id)
-      .single();
-    
-    if (orderError) {
-      console.error('Error fetching order:', orderError);
-      toast.error('Failed to load order details');
-      return null;
-    }
-    
-    // Get the order items with product details
-    const { data: items, error: itemsError } = await supabase
-      .from('order_items')
-      .select(`
-        *,
-        product:products(
-          name,
-          image_url
-        )
-      `)
-      .eq('order_id', id);
-    
-    if (itemsError) {
-      console.error('Error fetching order items:', itemsError);
-      toast.error('Failed to load order items');
-      return order;
-    }
-    
-    return { ...order, items: items || [] };
-  } catch (error) {
+export const fetchOrderById = async (orderId: string): Promise<Order | null> => {
+  const { data: session } = await supabase.auth.getSession();
+  if (!session.session) return null;
+
+  const userId = session.session.user.id;
+
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('id', orderId)
+    .eq('user_id', userId)
+    .single();
+
+  if (error) {
     console.error('Error fetching order:', error);
-    toast.error('Failed to load order details');
     return null;
   }
+
+  return data;
 };
 
-// Admin function to fetch all orders
-export const fetchAllOrders = async (): Promise<Order[]> => {
-  try {
-    // Get all orders
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('Error fetching all orders:', error);
-      toast.error('Failed to load orders');
-      return [];
-    }
-    
-    // For each order, get its items
-    const ordersWithItems = await Promise.all(data.map(async (order) => {
-      const { data: items, error: itemsError } = await supabase
-        .from('order_items')
-        .select(`
-          *,
-          product:products(
-            name,
-            image_url
-          )
-        `)
-        .eq('order_id', order.id);
-      
-      if (itemsError) {
-        console.error('Error fetching order items:', itemsError);
-        return order;
-      }
-      
-      return { ...order, items: items || [] };
-    }));
-    
-    return ordersWithItems;
-  } catch (error) {
-    console.error('Error fetching all orders:', error);
-    toast.error('Failed to load orders');
+export const fetchOrderItems = async (orderId: string): Promise<OrderItem[]> => {
+  const { data, error } = await supabase
+    .from('order_items')
+    .select('*')
+    .eq('order_id', orderId);
+
+  if (error) {
+    console.error('Error fetching order items:', error);
     return [];
   }
+
+  return data || [];
 };
 
-// Admin function to update order status
-export const updateOrderStatus = async (id: string, status: string): Promise<boolean> => {
-  try {
-    const { error } = await supabase
-      .from('orders')
-      .update({ status })
-      .eq('id', id);
-    
-    if (error) {
-      console.error('Error updating order status:', error);
-      toast.error('Failed to update order status');
-      return false;
-    }
-    
-    toast.success(`Order status updated to ${status}`);
-    return true;
-  } catch (error) {
-    console.error('Error updating order status:', error);
-    toast.error('Failed to update order status');
-    return false;
+export const createOrder = async (
+  shippingAddress: string,
+  cartItems: any[],
+  totalAmount: number
+): Promise<string | null> => {
+  const { data: session } = await supabase.auth.getSession();
+  if (!session.session) return null;
+
+  const userId = session.session.user.id;
+
+  // Insert the order
+  const { data: orderData, error: orderError } = await supabase
+    .from('orders')
+    .insert({
+      user_id: userId,
+      shipping_address: shippingAddress,
+      total_amount: totalAmount,
+      status: 'pending'
+    })
+    .select()
+    .single();
+
+  if (orderError || !orderData) {
+    console.error('Error creating order:', orderError);
+    return null;
   }
+
+  const orderId = orderData.id;
+
+  // Insert order items
+  const orderItems = cartItems.map(item => ({
+    order_id: orderId,
+    product_id: item.id,
+    quantity: item.quantity,
+    price_at_time: item.price
+  }));
+
+  const { error: itemsError } = await supabase
+    .from('order_items')
+    .insert(orderItems);
+
+  if (itemsError) {
+    console.error('Error creating order items:', itemsError);
+    return null;
+  }
+
+  return orderId;
+};
+
+export const cancelOrder = async (orderId: string): Promise<boolean> => {
+  const { data: session } = await supabase.auth.getSession();
+  if (!session.session) throw new Error('User not authenticated');
+
+  const userId = session.session.user.id;
+
+  // First check if the order belongs to the user
+  const { data: orderData, error: orderError } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('id', orderId)
+    .eq('user_id', userId)
+    .single();
+
+  if (orderError || !orderData) {
+    throw new Error('Order not found or does not belong to user');
+  }
+
+  // Check if the order status allows cancellation
+  if (!['pending', 'processing'].includes(orderData.status.toLowerCase())) {
+    throw new Error(`Cannot cancel order in ${orderData.status} status`);
+  }
+
+  // Update order status to cancelled
+  const { error: updateError } = await supabase
+    .from('orders')
+    .update({ status: 'cancelled' })
+    .eq('id', orderId);
+
+  if (updateError) {
+    console.error('Error cancelling order:', updateError);
+    throw new Error('Failed to cancel order');
+  }
+
+  return true;
 };

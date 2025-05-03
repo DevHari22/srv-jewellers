@@ -31,6 +31,7 @@ const Navbar = () => {
   const [goldRates, setGoldRates] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const isMobile = useIsMobile();
+  const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
   
   useEffect(() => {
     const getSettings = async () => {
@@ -118,6 +119,11 @@ const Navbar = () => {
     );
   };
 
+  const handleCategoriesClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowCategoriesDropdown(!showCategoriesDropdown);
+  };
+
   return (
     <header className="relative z-50">
       {/* Top bar with gold rates */}
@@ -161,14 +167,17 @@ const Navbar = () => {
             <div className="space-x-4 sm:space-x-6 font-medium">
               <Link to="/" className="hover:text-gold transition-colors">Home</Link>
               <div className="relative inline-block group">
-                <Link to="/categories" className="flex items-center hover:text-gold transition-colors">
+                <button
+                  onClick={handleCategoriesClick}
+                  className="flex items-center hover:text-gold transition-colors"
+                >
                   Categories <ChevronDown size={16} className="ml-1" />
-                </Link>
-                <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-20 hidden group-hover:block">
-                  <Link to="/categories/necklaces" className="block px-4 py-2 hover:bg-gold-light transition-colors">Necklaces</Link>
-                  <Link to="/categories/earrings" className="block px-4 py-2 hover:bg-gold-light transition-colors">Earrings</Link>
-                  <Link to="/categories/bracelets" className="block px-4 py-2 hover:bg-gold-light transition-colors">Bracelets</Link>
-                  <Link to="/categories/rings" className="block px-4 py-2 hover:bg-gold-light transition-colors">Rings</Link>
+                </button>
+                <div className={`absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-20 ${showCategoriesDropdown || 'hidden group-hover:block'}`}>
+                  <Link to="/categories/necklaces" className="block px-4 py-2 hover:bg-gold/10 hover:text-gold transition-colors">Necklaces</Link>
+                  <Link to="/categories/earrings" className="block px-4 py-2 hover:bg-gold/10 hover:text-gold transition-colors">Earrings</Link>
+                  <Link to="/categories/bracelets" className="block px-4 py-2 hover:bg-gold/10 hover:text-gold transition-colors">Bracelets</Link>
+                  <Link to="/categories/rings" className="block px-4 py-2 hover:bg-gold/10 hover:text-gold transition-colors">Rings</Link>
                 </div>
               </div>
               <Link to="/collections" className="hover:text-gold transition-colors">Collections</Link>
@@ -212,14 +221,14 @@ const Navbar = () => {
                     <User size={24} />
                   </button>
                   <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-20 hidden group-hover:block">
-                    <Link to="/account" className="block px-4 py-2 hover:bg-gold-light transition-colors">My Account</Link>
-                    <Link to="/orders" className="block px-4 py-2 hover:bg-gold-light transition-colors">My Orders</Link>
+                    <Link to="/account" className="block px-4 py-2 hover:bg-gold/10 hover:text-gold transition-colors">My Account</Link>
+                    <Link to="/orders" className="block px-4 py-2 hover:bg-gold/10 hover:text-gold transition-colors">My Orders</Link>
                     {user.role === 'admin' && (
-                      <Link to="/admin" className="block px-4 py-2 hover:bg-gold-light transition-colors">Admin Dashboard</Link>
+                      <Link to="/admin" className="block px-4 py-2 hover:bg-gold/10 hover:text-gold transition-colors">Admin Dashboard</Link>
                     )}
                     <button 
                       onClick={handleSignOut}
-                      className="block w-full text-left px-4 py-2 hover:bg-gold-light transition-colors text-red-600"
+                      className="block w-full text-left px-4 py-2 hover:bg-gold/10 transition-colors text-red-600"
                     >
                       Sign Out
                     </button>
@@ -277,8 +286,16 @@ const Navbar = () => {
                 Home
               </Link>
               <div className="block">
-                <p className="font-medium mb-2">Categories</p>
-                <div className="pl-4 space-y-2">
+                <button 
+                  className="font-medium mb-2 flex items-center hover:text-gold w-full text-left"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowCategoriesDropdown(!showCategoriesDropdown);
+                  }}
+                >
+                  Categories <ChevronDown size={16} className="ml-1" />
+                </button>
+                <div className={`pl-4 space-y-2 ${showCategoriesDropdown ? 'block' : 'hidden'}`}>
                   <Link to="/categories/necklaces" className="block hover:text-gold" onClick={toggleMenu}>
                     Necklaces
                   </Link>

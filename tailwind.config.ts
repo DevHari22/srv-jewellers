@@ -63,9 +63,12 @@ const config = {
           foreground: "hsl(var(--card-foreground))",
         },
         gold: {
-          DEFAULT: "#D4AF37",
-          dark: "#B8860B",
-          light: "#FFD700",
+          DEFAULT: "#D4AF37", // Standard gold
+          dark: "#B8860B", // Darker gold (more brown)
+          light: "#FFD700", // Bright gold
+          rich: "#F9A602", // Rich vibrant gold
+          shimmer: "#FFDF00", // Shimmering gold
+          antique: "#CFA64A", // Antique gold
         },
         maroon: {
           DEFAULT: "#800000",
@@ -102,6 +105,18 @@ const config = {
         shine: {
           '0%': { backgroundPosition: '200% 0' },
           '100%': { backgroundPosition: '-200% 0' }
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' }
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-468px 0' },
+          '100%': { backgroundPosition: '468px 0' }
+        },
+        spin: {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' }
         }
       },
       animation: {
@@ -109,11 +124,16 @@ const config = {
         "accordion-up": "accordion-up 0.2s ease-out",
         marquee: 'marquee 25s linear infinite',
         marquee2: 'marquee2 25s linear infinite',
-        shine: 'shine 3s linear infinite'
+        shine: 'shine 3s linear infinite',
+        float: 'float 6s ease-in-out infinite',
+        shimmer: 'shimmer 1.5s infinite',
+        'spin-slow': 'spin 3s linear infinite',
       },
       backgroundImage: {
         "gold-gradient": "linear-gradient(90deg, #D4AF37 0%, #FFD700 100%)",
-        "shimmer-gradient": "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%)"
+        "rich-gold-gradient": "linear-gradient(90deg, #F9A602 0%, #FFDF00 100%)",
+        "shimmer-gradient": "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%)",
+        "gold-shimmer": "linear-gradient(to right, #D4AF37 0%, #FFDF00 10%, #CFA64A 20%, #D4AF37 30%, #FFDF00 40%, #F9A602 50%, #D4AF37 60%, #FFDF00 70%, #CFA64A 80%, #D4AF37 90%, #FFDF00 100%)"
       }
     },
   },
