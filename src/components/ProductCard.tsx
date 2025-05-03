@@ -41,12 +41,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
       {/* Product badges */}
       <div className="absolute top-0 left-0 z-10 flex flex-col gap-2 p-2">
         {product.isNew && (
-          <span className="bg-maroon text-white text-xs font-medium px-2 py-1 rounded">
+          <span className="bg-[#8B4513] text-white text-xs font-medium px-2 py-1 rounded">
             NEW
           </span>
         )}
         {product.isFeatured && (
-          <span className="bg-gold text-white text-xs font-medium px-2 py-1 rounded">
+          <span className="bg-[#D4AF37] text-white text-xs font-medium px-2 py-1 rounded">
             FEATURED
           </span>
         )}
@@ -68,7 +68,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <Button 
               variant="secondary" 
               size="icon" 
-              className="bg-white text-maroon hover:bg-gold hover:text-white rounded-full h-10 w-10 shadow-md" 
+              className="bg-white text-[#8B4513] hover:bg-[#D4AF37] hover:text-white rounded-full h-10 w-10 shadow-md" 
               onClick={(e) => {
                 e.preventDefault();
                 onAddToCart && onAddToCart(product);
@@ -79,7 +79,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <Button 
               variant="secondary" 
               size="icon" 
-              className="bg-white text-maroon hover:bg-gold hover:text-white rounded-full h-10 w-10 shadow-md" 
+              className="bg-white text-[#8B4513] hover:bg-[#D4AF37] hover:text-white rounded-full h-10 w-10 shadow-md" 
               onClick={(e) => {
                 e.preventDefault();
                 onAddToWishlist && onAddToWishlist(product);
@@ -94,12 +94,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
       {/* Product info */}
       <div className="p-4 flex-grow flex flex-col">
         <Link to={`/product/${product.id}`} className="flex-grow">
-          <h3 className="font-medium text-base md:text-lg mb-1 hover:text-gold transition-colors line-clamp-2">
+          <h3 className="font-medium text-base md:text-lg mb-1 hover:text-[#D4AF37] transition-colors line-clamp-2">
             {product.name}
           </h3>
         </Link>
         <p className="text-gray-500 text-sm mb-2 capitalize">{product.category}</p>
-        <div className="price-tag inline-block font-semibold text-maroon text-sm md:text-base">
+        <div className="inline-block font-semibold text-[#8B4513] text-sm md:text-base bg-[#F9F5E7] px-3 py-1 rounded">
           ₹{product.price.toLocaleString('en-IN')}
         </div>
       </div>
@@ -107,7 +107,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       {/* Add to cart button */}
       <div className="px-4 pb-4 mt-auto">
         <Button 
-          className="w-full bg-maroon hover:bg-maroon/90 text-white text-sm py-2"
+          className="w-full bg-[#8B4513] hover:bg-[#6B3612] text-white text-sm py-2"
           onClick={() => onAddToCart && onAddToCart(product)}
         >
           Add to Cart

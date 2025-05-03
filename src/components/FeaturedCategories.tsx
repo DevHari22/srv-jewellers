@@ -41,9 +41,9 @@ const FeaturedCategories = () => {
       <div className="container px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10 sm:mb-14 md:mb-16">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold mb-4 sm:mb-5">
-            <span className="text-maroon relative">
+            <span className="text-[#8B4513] relative">
               Shop By Category
-              <span className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gold"></span>
+              <span className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-[#D4AF37]"></span>
             </span>
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto text-base sm:text-lg">
@@ -71,12 +71,12 @@ const FeaturedCategories = () => {
 
               {/* Category info overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-5 sm:p-6">
-                <h3 className="text-white text-lg sm:text-xl md:text-2xl font-serif font-bold mb-1 sm:mb-2 group-hover:text-gold transition-colors">
+                <h3 className="text-white text-lg sm:text-xl md:text-2xl font-serif font-bold mb-1 sm:mb-2 group-hover:text-[#D4AF37] transition-colors">
                   {category.name}
                 </h3>
                 <div className="flex justify-between items-center">
                   <p className="text-gray-200 text-sm sm:text-base">{category.count} Products</p>
-                  <ArrowRight size={18} className="text-gold opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all"/>
+                  <ArrowRight size={18} className="text-[#D4AF37] opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all"/>
                 </div>
               </div>
             </Link>
@@ -84,7 +84,7 @@ const FeaturedCategories = () => {
         </div>
         
         <div className="flex justify-center mt-10 sm:mt-14">
-          <Button className="bg-gold hover:bg-gold/90 text-maroon-dark text-sm sm:text-base px-8 py-6 rounded-md" asChild>
+          <Button className="bg-[#D4AF37] hover:bg-[#B8860B] text-[#4A3212] text-sm sm:text-base px-8 py-6 rounded-md font-medium" asChild>
             <Link to="/categories">View All Categories</Link>
           </Button>
         </div>

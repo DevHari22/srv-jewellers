@@ -44,19 +44,22 @@ const FeaturedProducts = ({ displayCount = 4 }: FeaturedProductsProps) => {
   };
 
   return (
-    <section className="py-16 sm:py-20 md:py-24 bg-gray-50">
+    <section className="py-16 sm:py-20 md:py-24 bg-[#FFFAF0]">
       <div className="container px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-end mb-10 sm:mb-12">
           <div className="mb-3">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold mb-4">
-              <span className="text-maroon">Featured Products</span>
+              <span className="text-[#8B4513] relative">
+                Featured Products
+                <span className="absolute -bottom-2 left-0 w-24 h-1 bg-[#D4AF37]"></span>
+              </span>
             </h2>
             <p className="text-gray-600 max-w-2xl text-sm sm:text-base">
               Explore our most popular and exclusive jewelry pieces, chosen for their exquisite
               craftsmanship and timeless designs.
             </p>
           </div>
-          <Link to="/collections" className="hidden md:flex items-center text-maroon hover:text-gold transition-colors">
+          <Link to="/collections" className="hidden md:flex items-center text-[#8B4513] hover:text-[#D4AF37] transition-colors">
             <span className="mr-2 font-medium">View all</span>
             <ArrowRight size={18} />
           </Link>
@@ -88,7 +91,7 @@ const FeaturedProducts = ({ displayCount = 4 }: FeaturedProductsProps) => {
             </div>
             
             <div className="flex justify-center mt-12 md:hidden">
-              <Button className="bg-maroon hover:bg-maroon/90 text-white px-8 py-6 text-base" asChild>
+              <Button className="bg-[#8B4513] hover:bg-[#6B3612] text-white px-8 py-6 text-base" asChild>
                 <Link to="/collections">Shop Collections</Link>
               </Button>
             </div>

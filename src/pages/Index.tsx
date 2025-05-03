@@ -8,58 +8,51 @@ import FeaturedProducts from "@/components/FeaturedProducts";
 import NewsletterSection from "@/components/NewsletterSection";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import PromotionalBanner from "@/components/PromotionalBanner";
 import JewelryRotator from "@/components/JewelryRotator";
 
 const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
-      <PromotionalBanner
-        title="FESTIVE SALE! 15% OFF on All Diamond Jewelry"
-        description="Use code FESTIVE15 at checkout. Valid until 31st May"
-        buttonText="Shop Diamonds"
-        buttonLink="/categories/diamonds"
-        backgroundColor="bg-rich-gold-gradient"
-      />
       <Navbar />
       <main className="flex-grow">
         <HeroSection />
         
+        {/* Trust features section */}
         <div className="py-12 bg-white">
           <div className="container">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Feature blocks with enhanced colors */}
-              <div className="flex flex-col items-center text-center p-6 border border-gold/20 rounded-lg shadow-sm hover:shadow-md transition-all bg-gradient-to-br from-white to-gold/5">
-                <div className="w-16 h-16 rounded-full bg-gold-shimmer flex items-center justify-center mb-4 animate-pulse">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-maroon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {/* Feature blocks with refined gold colors */}
+              <div className="flex flex-col items-center text-center p-6 border border-[#D4AF37]/20 rounded-lg shadow-sm hover:shadow-md transition-all bg-gradient-to-br from-white to-[#F9F5E7]">
+                <div className="w-16 h-16 rounded-full bg-[#F5E7C1] flex items-center justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#B8860B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-serif font-semibold mb-2 text-maroon">Secure Transactions</h3>
+                <h3 className="text-xl font-serif font-semibold mb-2 text-[#8B4513]">Secure Transactions</h3>
                 <p className="text-gray-600">
                   Every purchase is secure thanks to our advanced encryption and authentication protocols.
                 </p>
               </div>
               
-              <div className="flex flex-col items-center text-center p-6 border border-gold/20 rounded-lg shadow-sm hover:shadow-md transition-all bg-gradient-to-br from-white to-gold/5">
-                <div className="w-16 h-16 rounded-full bg-gold-shimmer flex items-center justify-center mb-4 animate-pulse">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-maroon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="flex flex-col items-center text-center p-6 border border-[#D4AF37]/20 rounded-lg shadow-sm hover:shadow-md transition-all bg-gradient-to-br from-white to-[#F9F5E7]">
+                <div className="w-16 h-16 rounded-full bg-[#F5E7C1] flex items-center justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#B8860B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-serif font-semibold mb-2 text-maroon">Genuine Products</h3>
+                <h3 className="text-xl font-serif font-semibold mb-2 text-[#8B4513]">Genuine Products</h3>
                 <p className="text-gray-600">
                   All our jewelry comes with certification of authenticity and is hallmarked.
                 </p>
               </div>
               
-              <div className="flex flex-col items-center text-center p-6 border border-gold/20 rounded-lg shadow-sm hover:shadow-md transition-all bg-gradient-to-br from-white to-gold/5">
-                <div className="w-16 h-16 rounded-full bg-gold-shimmer flex items-center justify-center mb-4 animate-pulse">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-maroon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="flex flex-col items-center text-center p-6 border border-[#D4AF37]/20 rounded-lg shadow-sm hover:shadow-md transition-all bg-gradient-to-br from-white to-[#F9F5E7]">
+                <div className="w-16 h-16 rounded-full bg-[#F5E7C1] flex items-center justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#B8860B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-serif font-semibold mb-2 text-maroon">Nationwide Delivery</h3>
+                <h3 className="text-xl font-serif font-semibold mb-2 text-[#8B4513]">Nationwide Delivery</h3>
                 <p className="text-gray-600">
                   We deliver across India with insured shipping and tracking on all orders.
                 </p>
@@ -68,23 +61,17 @@ const Index = () => {
           </div>
         </div>
         
-        <PromotionalBanner
-          title="NEW ARRIVALS: Wedding Collection 2025"
-          description="Exclusive designs for the wedding season"
-          buttonText="View Collection"
-          buttonLink="/collections/wedding"
-          backgroundColor="bg-maroon"
-          textColor="text-white"
-        />
-        
         <FeaturedCategories />
         
         {/* 3D Jewelry Showcase */}
-        <div className="py-16 bg-gray-50">
+        <div className="py-16 bg-[#FFFAF0]">
           <div className="container px-4">
             <div className="text-center mb-10">
               <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">
-                <span className="text-maroon">Interactive Jewelry</span>
+                <span className="text-[#8B4513] relative">
+                  Interactive Jewelry
+                  <span className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-[#D4AF37]"></span>
+                </span>
               </h2>
               <p className="text-gray-600 max-w-2xl mx-auto">
                 Explore our featured pieces in 3D. Click and drag to rotate and see the jewelry from different angles.
@@ -115,7 +102,7 @@ const Index = () => {
             </div>
             
             <div className="text-center mt-10">
-              <Button className="bg-maroon hover:bg-maroon/90 text-white px-8 py-2 text-lg" asChild>
+              <Button className="bg-[#B8860B] hover:bg-[#8B6914] text-white px-8 py-2 text-lg" asChild>
                 <Link to="/collections/premium">View Premium Collection</Link>
               </Button>
             </div>
@@ -123,25 +110,6 @@ const Index = () => {
         </div>
         
         <FeaturedProducts displayCount={8} />
-        
-        {/* Limited Time Offer Banner */}
-        <div className="py-12 bg-gradient-to-r from-maroon to-maroon-dark text-white">
-          <div className="container">
-            <div className="flex flex-col md:flex-row items-center justify-between">
-              <div className="mb-6 md:mb-0 text-center md:text-left">
-                <h3 className="text-2xl md:text-3xl font-serif font-bold mb-2">Limited Time Offer</h3>
-                <p className="text-lg text-gold-light">Buy any necklace and get earrings at 10% off!</p>
-                <p className="text-sm opacity-80 mt-2">Offer valid until stocks last. T&C apply.</p>
-              </div>
-              <Button 
-                className="bg-gold hover:bg-gold-shimmer text-maroon-dark font-medium px-8 py-6 text-lg"
-                asChild
-              >
-                <Link to="/collections/sets">Shop Jewelry Sets</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
         
         <div className="py-16 bg-white">
           <div className="container">
@@ -156,7 +124,7 @@ const Index = () => {
               </div>
               
               <div className="md:w-1/2">
-                <h2 className="text-3xl font-serif font-bold mb-4 text-maroon">Our Heritage</h2>
+                <h2 className="text-3xl font-serif font-bold mb-4 text-[#8B4513]">Our Heritage</h2>
                 <p className="text-gray-700 mb-4">
                   For over three generations, SRV JEWELLERS has been crafting exquisite jewelry that
                   combines traditional artistry with contemporary design. Our master artisans bring centuries
@@ -171,7 +139,7 @@ const Index = () => {
                   Every creation from SRV JEWELLERS tells a story of tradition, craftsmanship, and
                   the rich cultural heritage of India's jewelry-making legacy.
                 </p>
-                <Button className="bg-maroon hover:bg-maroon/90 text-white px-8 py-2 text-lg" asChild>
+                <Button className="bg-[#B8860B] hover:bg-[#8B6914] text-white px-8 py-2 text-lg" asChild>
                   <Link to="/about">Explore Our Story</Link>
                 </Button>
               </div>
