@@ -2,6 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 const categories = [
   {
@@ -14,7 +15,7 @@ const categories = [
   {
     id: 2,
     name: "Earrings",
-    image: "https://images.unsplash.com/photo-1589118949245-7d38baf380d6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2670&q=80",
+    image: "https://images.unsplash.com/photo-1588444650733-d636f6927858?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
     count: 45,
     link: "/categories/earrings",
   },
@@ -36,24 +37,27 @@ const categories = [
 
 const FeaturedCategories = () => {
   return (
-    <section className="py-10 sm:py-12 md:py-16 bg-white">
+    <section className="py-16 sm:py-20 md:py-24 bg-white">
       <div className="container px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8 sm:mb-10 md:mb-12">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold mb-3 sm:mb-4">
-            <span className="text-gold-gradient">Shop By Category</span>
+        <div className="text-center mb-10 sm:mb-14 md:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold mb-4 sm:mb-5">
+            <span className="text-maroon relative">
+              Shop By Category
+              <span className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gold"></span>
+            </span>
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto text-sm sm:text-base">
+          <p className="text-gray-600 max-w-2xl mx-auto text-base sm:text-lg">
             Browse our extensive collection of traditional and contemporary Indian jewelry,
             crafted by master artisans with the finest materials.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 md:gap-8">
           {categories.map((category) => (
             <Link
               key={category.id}
               to={category.link}
-              className="group overflow-hidden rounded-lg shadow-md relative"
+              className="group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 relative"
             >
               {/* Category image */}
               <div className="aspect-square overflow-hidden bg-gray-200">
@@ -66,18 +70,21 @@ const FeaturedCategories = () => {
               </div>
 
               {/* Category info overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-3 sm:p-4 md:p-6">
-                <h3 className="text-white text-base sm:text-lg md:text-xl font-serif font-bold mb-0 sm:mb-1 group-hover:text-gold-light transition-colors">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-5 sm:p-6">
+                <h3 className="text-white text-lg sm:text-xl md:text-2xl font-serif font-bold mb-1 sm:mb-2 group-hover:text-gold transition-colors">
                   {category.name}
                 </h3>
-                <p className="text-gray-300 text-xs sm:text-sm">{category.count} Products</p>
+                <div className="flex justify-between items-center">
+                  <p className="text-gray-200 text-sm sm:text-base">{category.count} Products</p>
+                  <ArrowRight size={18} className="text-gold opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all"/>
+                </div>
               </div>
             </Link>
           ))}
         </div>
         
-        <div className="flex justify-center mt-8 sm:mt-10 md:mt-12">
-          <Button className="bg-gold hover:bg-gold/90 text-maroon-dark text-xs sm:text-sm md:text-base px-6 sm:px-8 py-2 sm:py-3 rounded-md" asChild>
+        <div className="flex justify-center mt-10 sm:mt-14">
+          <Button className="bg-gold hover:bg-gold/90 text-maroon-dark text-sm sm:text-base px-8 py-6 rounded-md" asChild>
             <Link to="/categories">View All Categories</Link>
           </Button>
         </div>

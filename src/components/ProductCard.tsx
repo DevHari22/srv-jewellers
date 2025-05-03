@@ -37,13 +37,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const imageUrl = product.image || "/placeholder.svg";
 
   return (
-    <div className="product-card group relative shadow-sm hover:shadow-md transition-shadow duration-300 rounded-lg overflow-hidden bg-white">
+    <div className="product-card group relative shadow-md hover:shadow-xl transition-all duration-300 rounded-lg overflow-hidden bg-white h-full flex flex-col">
       {/* Product badges */}
-      {product.isNew && (
-        <div className="absolute top-2 left-2 z-10 bg-gold text-white text-xs font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded">
-          NEW
-        </div>
-      )}
+      <div className="absolute top-0 left-0 z-10 flex flex-col gap-2 p-2">
+        {product.isNew && (
+          <span className="bg-maroon text-white text-xs font-medium px-2 py-1 rounded">
+            NEW
+          </span>
+        )}
+        {product.isFeatured && (
+          <span className="bg-gold text-white text-xs font-medium px-2 py-1 rounded">
+            FEATURED
+          </span>
+        )}
+      </div>
       
       {/* Product image with hover effect */}
       <Link to={`/product/${product.id}`} className="block overflow-hidden">
@@ -57,50 +64,50 @@ const ProductCard: React.FC<ProductCardProps> = ({
           />
           
           {/* Quick actions overlay */}
-          <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-1 sm:space-x-2 p-2 sm:p-4">
+          <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-3 p-4">
             <Button 
               variant="secondary" 
               size="icon" 
-              className="bg-white text-maroon hover:bg-gold hover:text-white rounded-full h-7 w-7 sm:h-9 sm:w-9" 
+              className="bg-white text-maroon hover:bg-gold hover:text-white rounded-full h-10 w-10 shadow-md" 
               onClick={(e) => {
                 e.preventDefault();
                 onAddToCart && onAddToCart(product);
               }}
             >
-              <ShoppingCart size={14} className="sm:h-4 sm:w-4" />
+              <ShoppingCart size={16} />
             </Button>
             <Button 
               variant="secondary" 
               size="icon" 
-              className="bg-white text-maroon hover:bg-gold hover:text-white rounded-full h-7 w-7 sm:h-9 sm:w-9" 
+              className="bg-white text-maroon hover:bg-gold hover:text-white rounded-full h-10 w-10 shadow-md" 
               onClick={(e) => {
                 e.preventDefault();
                 onAddToWishlist && onAddToWishlist(product);
               }}
             >
-              <Heart size={14} className="sm:h-4 sm:w-4" />
+              <Heart size={16} />
             </Button>
           </div>
         </div>
       </Link>
       
       {/* Product info */}
-      <div className="p-2 sm:p-4">
-        <Link to={`/product/${product.id}`}>
-          <h3 className="font-medium text-sm sm:text-base md:text-lg mb-0.5 sm:mb-1 hover:text-gold transition-colors line-clamp-2">
+      <div className="p-4 flex-grow flex flex-col">
+        <Link to={`/product/${product.id}`} className="flex-grow">
+          <h3 className="font-medium text-base md:text-lg mb-1 hover:text-gold transition-colors line-clamp-2">
             {product.name}
           </h3>
         </Link>
-        <p className="text-gray-500 text-xs sm:text-sm mb-1 sm:mb-2">{product.category}</p>
-        <div className="price-tag inline-block font-semibold text-maroon text-xs sm:text-sm">
+        <p className="text-gray-500 text-sm mb-2 capitalize">{product.category}</p>
+        <div className="price-tag inline-block font-semibold text-maroon text-sm md:text-base">
           ₹{product.price.toLocaleString('en-IN')}
         </div>
       </div>
       
       {/* Add to cart button */}
-      <div className="px-2 sm:px-4 pb-2 sm:pb-4">
+      <div className="px-4 pb-4 mt-auto">
         <Button 
-          className="w-full bg-maroon hover:bg-maroon/90 text-white text-xs sm:text-sm py-1 sm:py-2"
+          className="w-full bg-maroon hover:bg-maroon/90 text-white text-sm py-2"
           onClick={() => onAddToCart && onAddToCart(product)}
         >
           Add to Cart

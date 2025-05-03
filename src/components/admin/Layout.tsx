@@ -25,11 +25,11 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50">
       {/* Mobile overlay when sidebar is open */}
       {isMobile && sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-20"
+          className="fixed inset-0 bg-black/60 z-20 backdrop-blur-sm transition-all duration-300"
           onClick={() => setSidebarOpen(false)}
           aria-hidden="true"
         ></div>
@@ -37,7 +37,7 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
       
       {/* Sidebar */}
       <div 
-        className={`fixed top-0 left-0 h-full transition-all duration-300 z-30
+        className={`fixed top-0 left-0 h-full transition-all duration-300 shadow-lg z-30
         ${sidebarOpen ? 'w-64 translate-x-0' : 'w-64 -translate-x-full sm:translate-x-0 sm:w-0 md:w-16'}`}
       >
         <AdminSidebar />
@@ -47,19 +47,19 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
       <div className={`transition-all duration-300 ${sidebarOpen ? 'ml-0 sm:ml-64' : 'ml-0 md:ml-16'}`}>
         <AdminHeader />
         <div className="p-4 sm:p-6">
-          <div className="flex items-center mb-4 sm:mb-6">
+          <div className="flex items-center mb-6 sm:mb-8">
             <Button 
               variant="outline" 
               size="icon" 
               onClick={toggleSidebar} 
-              className="mr-3 sm:mr-4"
+              className="mr-3 sm:mr-4 hover:bg-gray-100"
               aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
             >
               {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
             </Button>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-800 truncate">{title}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 truncate">{title}</h1>
           </div>
-          <div className="overflow-x-auto">
+          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 overflow-hidden">
             {children}
           </div>
         </div>
