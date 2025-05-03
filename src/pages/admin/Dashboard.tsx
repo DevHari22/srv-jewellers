@@ -34,7 +34,7 @@ type Product = {
 };
 
 const StatCard = ({ title, value, icon: Icon, change, color }: any) => (
-  <div className="bg-white rounded-lg shadow-md p-6">
+  <div className="bg-white rounded-lg shadow-md p-6 border-l-4 hover:shadow-lg transition-shadow" style={{ borderLeftColor: color.replace('text-', '') }}>
     <div className="flex justify-between items-start">
       <div>
         <p className="text-gray-500 text-sm">{title}</p>
@@ -45,7 +45,7 @@ const StatCard = ({ title, value, icon: Icon, change, color }: any) => (
         </p>
       </div>
       <div className={`p-3 rounded-full ${color.includes("green") ? "bg-green-100" : color.includes("blue") ? "bg-blue-100" : color.includes("orange") ? "bg-orange-100" : "bg-purple-100"}`}>
-        <Icon size={24} className={color.replace("text", "text")} />
+        <Icon size={24} className={color.replace('text', 'text')} />
       </div>
     </div>
   </div>
@@ -291,11 +291,11 @@ const AdminDashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold mb-4">Recent Orders</h2>
+          <h2 className="text-xl font-bold mb-4 text-[#1E293B] border-b pb-2">Recent Orders</h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b">
+                <tr className="border-b bg-gray-50">
                   <th className="text-left py-3 px-4 font-medium text-gray-500">Order ID</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-500">Customer</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-500">Date</th>
@@ -335,16 +335,18 @@ const AdminDashboard = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 h-full">
-          <h2 className="text-xl font-bold mb-4">Top Selling Products</h2>
+          <h2 className="text-xl font-bold mb-4 text-[#1E293B] border-b pb-2">Top Selling Products</h2>
           <div className="space-y-4">
             {topProducts.length > 0 ? (
               topProducts.map((product) => (
-                <div key={product.id} className="flex items-center space-x-4 border-b pb-4 last:border-0">
+                <div key={product.id} className="flex items-center space-x-4 border-b pb-4 last:border-0 hover:bg-gray-50 p-2 rounded-md">
                   <div className="w-12 h-12 bg-gray-200 rounded-md overflow-hidden">
                     {product.image_url ? (
                       <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full bg-gray-200"></div>
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <Package size={20} className="text-gray-400" />
+                      </div>
                     )}
                   </div>
                   <div className="flex-1">

@@ -44,14 +44,14 @@ const FeaturedProducts = ({ displayCount = 4 }: FeaturedProductsProps) => {
   };
 
   return (
-    <section className="py-16 sm:py-20 md:py-24 bg-[#FFFAF0]">
+    <section className="py-16 sm:py-20 md:py-24 bg-[#FBF8F1]">
       <div className="container px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-end mb-10 sm:mb-12">
           <div className="mb-3">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold mb-4">
               <span className="text-[#8B4513] relative">
                 Featured Products
-                <span className="absolute -bottom-2 left-0 w-24 h-1 bg-[#D4AF37]"></span>
+                <span className="absolute -bottom-2 left-0 w-24 h-1 bg-[#F9A602]"></span>
               </span>
             </h2>
             <p className="text-gray-600 max-w-2xl text-sm sm:text-base">
@@ -59,7 +59,7 @@ const FeaturedProducts = ({ displayCount = 4 }: FeaturedProductsProps) => {
               craftsmanship and timeless designs.
             </p>
           </div>
-          <Link to="/collections" className="hidden md:flex items-center text-[#8B4513] hover:text-[#D4AF37] transition-colors">
+          <Link to="/collections" className="hidden md:flex items-center text-[#8B4513] hover:text-[#F9A602] transition-colors">
             <span className="mr-2 font-medium">View all</span>
             <ArrowRight size={18} />
           </Link>

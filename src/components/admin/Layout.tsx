@@ -57,9 +57,9 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
             >
               {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
             </Button>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 truncate">{title}</h1>
+            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-gray-800 truncate">{title}</h1>
           </div>
-          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 overflow-hidden">
+          <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 overflow-hidden">
             {children}
           </div>
         </div>

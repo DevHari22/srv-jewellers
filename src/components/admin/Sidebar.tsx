@@ -59,17 +59,17 @@ const AdminSidebar = () => {
   };
 
   return (
-    <div className={`${collapsed ? 'w-16 sm:w-16' : 'w-64'} h-screen bg-maroon-dark text-white fixed left-0 top-0 overflow-y-auto transition-all duration-300`}>
+    <div className={`${collapsed ? 'w-16 sm:w-16' : 'w-64'} h-screen bg-[#1E293B] text-white fixed left-0 top-0 overflow-y-auto transition-all duration-300`}>
       <div className="p-4 relative">
         <button 
           onClick={toggleSidebar}
-          className="absolute top-2 right-1 p-1 rounded-full bg-maroon-dark/50 hover:bg-maroon text-gold-light"
+          className="absolute top-2 right-1 p-1 rounded-full bg-[#2D3D50]/50 hover:bg-[#2D3D50] text-[#F9A602]"
           aria-label={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
         >
           {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         </button>
         
-        <h1 className={`${collapsed ? 'text-xl text-center' : 'text-2xl'} font-bold text-gold mb-6 text-center transition-all duration-300`}>
+        <h1 className={`${collapsed ? 'text-xl text-center' : 'text-2xl'} font-bold text-[#F9A602] mb-6 text-center transition-all duration-300`}>
           {collapsed ? 'SRV' : 'SRV JEWELLERS'}
         </h1>
         
@@ -85,8 +85,8 @@ const AdminSidebar = () => {
                   to={item.path}
                   className={`flex items-center ${collapsed ? 'justify-center' : 'px-4'} py-2 rounded-md transition-colors
                     ${isActive(item.path)
-                      ? "bg-maroon text-gold-light"
-                      : "hover:bg-maroon hover:text-gold-light"}
+                      ? "bg-[#2D3D50] text-[#F9A602]"
+                      : "hover:bg-[#2D3D50] hover:text-[#F9A602]"}
                   `}
                 >
                   <item.icon size={18} className={collapsed ? '' : 'mr-3'} />
@@ -100,7 +100,7 @@ const AdminSidebar = () => {
       <div className="absolute bottom-0 left-0 w-full p-4">
         <button
           onClick={handleSignOut}
-          className={`flex items-center ${collapsed ? 'justify-center' : 'px-4'} py-2 w-full text-left text-gray-300 hover:text-gold-light transition-colors`}
+          className={`flex items-center ${collapsed ? 'justify-center' : 'px-4'} py-2 w-full text-left text-gray-400 hover:text-[#F9A602] transition-colors`}
           aria-label="Logout"
         >
           <LogOut size={18} className={collapsed ? '' : 'mr-3'} />
