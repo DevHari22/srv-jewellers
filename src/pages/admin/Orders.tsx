@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/Layout";
 import { Search, Filter, Eye, Download, CheckCircle, Clock, Truck, PackageX } from "lucide-react";
@@ -7,7 +6,8 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import { useToast } from "@/hooks/use-toast";
 import { 
   fetchAllOrders, 
-  updateOrderStatus, 
+  updateOrderStatus,
+  fetchOrderWithItems,
   type Order 
 } from "@/services/orderService";
 import {
@@ -26,6 +26,7 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [viewLoading, setViewLoading] = useState(false);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -75,9 +76,35 @@ const AdminOrders = () => {
   };
 
   // View order details
-  const handleViewOrder = (order: Order) => {
-    setSelectedOrder(order);
-    setOpenDialog(true);
+  const handleViewOrder = async (order: Order) => {
+    try {
+      setViewLoading(true);
+      setOpenDialog(true);
+      
+      // Fetch the order with items
+      const orderWithItems = await fetchOrderWithItems(order.id);
+      
+      if (orderWithItems) {
+        setSelectedOrder(orderWithItems);
+      } else {
+        setSelectedOrder(order);
+        toast({
+          title: "Warning",
+          description: "Could not load order items",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching order details:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load order details",
+        variant: "destructive"
+      });
+      setSelectedOrder(order);
+    } finally {
+      setViewLoading(false);
+    }
   };
 
   // Filter orders based on search and status
@@ -278,7 +305,11 @@ const AdminOrders = () => {
             <DialogTitle>Order Details</DialogTitle>
           </DialogHeader>
           
-          {selectedOrder && (
+          {viewLoading ? (
+            <div className="flex justify-center py-8">
+              <LoadingSpinner />
+            </div>
+          ) : selectedOrder && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>

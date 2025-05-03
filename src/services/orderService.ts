@@ -1,4 +1,3 @@
-
 import { supabase } from "../integrations/supabase/client";
 
 export interface Order {
@@ -8,6 +7,7 @@ export interface Order {
   created_at: string;
   status: string;
   shipping_address: string;
+  items?: OrderItem[]; // Adding items as optional property
 }
 
 export interface OrderItem {
@@ -16,6 +16,10 @@ export interface OrderItem {
   product_id: string;
   quantity: number;
   price_at_time: number;
+  product?: {
+    name: string;
+    image_url?: string;
+  };
 }
 
 export const fetchUserOrders = async (): Promise<Order[]> => {
@@ -157,4 +161,66 @@ export const cancelOrder = async (orderId: string): Promise<boolean> => {
   }
 
   return true;
+};
+
+// Add the missing functions for admin order management
+
+export const fetchAllOrders = async (): Promise<Order[]> => {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching all orders:', error);
+    return [];
+  }
+
+  return data || [];
+};
+
+export const updateOrderStatus = async (orderId: string, newStatus: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from('orders')
+    .update({ status: newStatus })
+    .eq('id', orderId);
+
+  if (error) {
+    console.error('Error updating order status:', error);
+    return false;
+  }
+
+  return true;
+};
+
+// Function to fetch order with its items
+export const fetchOrderWithItems = async (orderId: string): Promise<Order | null> => {
+  // First, get the order
+  const order = await fetchOrderById(orderId);
+  if (!order) return null;
+
+  // Then, get the order items
+  const items = await fetchOrderItems(orderId);
+  
+  // For each item, fetch the product details
+  const itemsWithProducts = await Promise.all(
+    items.map(async (item) => {
+      const { data: product } = await supabase
+        .from('products')
+        .select('name, image_url')
+        .eq('id', item.product_id)
+        .single();
+      
+      return {
+        ...item,
+        product: product || { name: 'Unknown Product' }
+      };
+    })
+  );
+
+  // Return the order with items
+  return {
+    ...order,
+    items: itemsWithProducts
+  };
 };
