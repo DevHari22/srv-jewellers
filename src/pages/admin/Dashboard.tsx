@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState } from "react";
 import AdminLayout from "@/components/admin/Layout";
-import { TrendingUp, Users, ShoppingBag, DollarSign } from "lucide-react";
+import { TrendingUp, Users, ShoppingBag, DollarSign, Package } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
